@@ -22,7 +22,7 @@ public class DataStreamDemo {
         SingleOutputStreamOperator<Integer> sum = source.map(v -> v * 2).keyBy(value -> 1).sum(0);
 
         sum.addSink(new PrintSinkFunction<>());
-
+        System.out.println(e.getExecutionPlan());
         e.execute();
 
 
