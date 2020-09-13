@@ -60,8 +60,14 @@ public class SplitDemoBetterThanfiler {
             }
         });
 
-        streamOperator.getSideOutput(zeroTag).print();
-        streamOperator.getSideOutput(oneTag).printToErr();
+//        streamOperator.getSideOutput(zeroTag).print();
+//        streamOperator.getSideOutput(oneTag).printToErr();
+
+        SplitStream<Tuple3<Integer, Integer, Integer>> split = streamOperator.getSideOutput(zeroTag).split(getOutputSelector());
+        split.select("less2").printToErr();
+
+        split.select("large2").print();
+
     }
 
     private static void runningBySplit(DataStreamSource<Tuple3<Integer, Integer, Integer>> streamSource) {
@@ -73,7 +79,14 @@ public class SplitDemoBetterThanfiler {
 
 
         //Consecutive multiple splits are not supported. Splits are deprecated. Please use side-outputs.
-        SplitStream<Tuple3<Integer, Integer, Integer>> splitStream2 = split.select("zeroStream").split(new org.apache.flink.streaming.api.collector.selector.OutputSelector<Tuple3<Integer, Integer, Integer>>() {
+        SplitStream<Tuple3<Integer, Integer, Integer>> splitStream2 = split.select("zeroStream").split(getOutputSelector());
+        splitStream2.select("less2").printToErr();
+
+        splitStream2.select("large2").print();
+    }
+
+    private static org.apache.flink.streaming.api.collector.selector.OutputSelector<Tuple3<Integer, Integer, Integer>> getOutputSelector() {
+        return new org.apache.flink.streaming.api.collector.selector.OutputSelector<Tuple3<Integer, Integer, Integer>>() {
             @Override
             public Iterable<String> select(Tuple3<Integer, Integer, Integer> value) {
                 List list = new ArrayList<String>();
@@ -86,10 +99,7 @@ public class SplitDemoBetterThanfiler {
                 }
                 return list;
             }
-        });
-        splitStream2.select("less2").printToErr();
-
-        splitStream2.select("large2").print();
+        };
     }
 
     /**
