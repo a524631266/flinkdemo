@@ -2,8 +2,10 @@ package fink02.stream;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
+import org.apache.flink.streaming.api.datastream.KeyedStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.sink.PrintSinkFunction;
 import org.apache.flink.streaming.api.functions.source.FromElementsFunction;
@@ -11,22 +13,14 @@ import org.apache.flink.streaming.api.functions.source.SourceFunction;
 import scala.Tuple2;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class KeyedStreamDemo {
-    @Data
-    @AllArgsConstructor
-    static class WC {
-        public String word;
-        public int count;
-    }
+
     public static void main(String[] args) throws Exception {
         StreamExecutionEnvironment e = StreamExecutionEnvironment.getExecutionEnvironment();
 
@@ -44,8 +38,12 @@ public class KeyedStreamDemo {
                     } catch ( InterruptedException e1 ) {
                         e1.printStackTrace();
                     }
-                    ctx.collect(new WC(keyName, a));
-                    ctx.collect(new WC(keyName2, a * a));
+                    WC wc = new WC(keyName, UUID.randomUUID().toString(), a);
+                    WC wc1 = new WC(keyName2, UUID.randomUUID().toString(), a * a);
+                    System.out.println(wc);
+                    System.out.println(wc1);
+                    ctx.collect(wc);
+                    ctx.collect(wc1);
                 });
                 //   .collect(Collectors.toList());
             }
@@ -80,7 +78,17 @@ public class KeyedStreamDemo {
             }
         });
 
-        source.keyBy(WC::getWord).addSink(new PrintSinkFunction<>());
+
+//        source.keyBy(WC::getWord).addSink(new PrintSinkFunction<>());
+
+        KeyedStream<WC, String> wcStringKeyedStream = source.keyBy(WC::getWord);
+//        wcStringKeyedStream.sum("count").printToErr();
+        // maxBy 为最大的那条记录
+//        wcStringKeyedStream.maxBy("count").printToErr();
+         // 只保留最大的结果集合
+        wcStringKeyedStream.max("count").printToErr();
+//                .sum("wc.count").printToErr();
+
         e.execute();
     }
 }
