@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.apache.flink.api.common.typeinfo.TypeInfo;
 
 import java.util.Date;
 
@@ -14,6 +15,7 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
+@TypeInfo(CustomTypeInfFactory.class)
 public class Employee {
     int id;
     String name;
