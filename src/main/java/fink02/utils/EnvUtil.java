@@ -1,5 +1,6 @@
 package fink02.utils;
 
+import org.apache.flink.api.java.ExecutionEnvironment;
 import org.apache.flink.configuration.ConfigConstants;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.RestOptions;
@@ -18,6 +19,14 @@ public class EnvUtil {
         configuration.setInteger(RestOptions.PORT, 8050);
         StreamExecutionEnvironment localEnvironmentWithWebUI = StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(configuration);
         return localEnvironmentWithWebUI;
+    }
+
+    public static ExecutionEnvironment getLoalWebDataSetEnv(){
+        Configuration configuration = new Configuration();
+        configuration.setBoolean(ConfigConstants.LOCAL_START_WEBSERVER, true);
+        configuration.setInteger(RestOptions.PORT, 8050);
+        ExecutionEnvironment env = ExecutionEnvironment.createLocalEnvironmentWithWebUI(configuration);
+        return env;
     }
 
     /**
