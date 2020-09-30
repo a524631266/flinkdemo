@@ -34,7 +34,12 @@ import java.util.stream.Stream;
 public class KeyedStreamDemo {
 
     public static void main(String[] args) throws Exception {
-        StreamExecutionEnvironment e = StreamExecutionEnvironment.getExecutionEnvironment();
+        Configuration configuration = new Configuration();
+        configuration.setBoolean(ConfigConstants.LOCAL_START_WEBSERVER, true);
+        configuration.setInteger(RestOptions.PORT, 8050);
+        StreamExecutionEnvironment e = StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(configuration);
+
+//        StreamExecutionEnvironment e = StreamExecutionEnvironment.getExecutionEnvironment();
         CheckpointConfig checkpointConfig = e.getCheckpointConfig();
         checkpointConfig.enableExternalizedCheckpoints(CheckpointConfig.ExternalizedCheckpointCleanup.RETAIN_ON_CANCELLATION);
         checkpointConfig.setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE);
