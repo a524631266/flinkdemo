@@ -13,6 +13,8 @@ import org.apache.flink.streaming.api.functions.source.RichSourceFunction;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
 import org.mockito.Mockito;
 
+import java.util.concurrent.TimeUnit;
+
 public class SourceUtil {
     /**
      * 产生随机的对象的source
@@ -36,6 +38,9 @@ public class SourceUtil {
 //                    System.out.println(mock2);
 //                    ctx.collect(mock2);
                     Person person = new Person();
+                    person.setAddress(new Address(0, "asddd"));
+//                    System.out.println(person);
+                    TimeUnit.SECONDS.sleep(1);
                     ctx.collect((T) person);
                 }
             }
