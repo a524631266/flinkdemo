@@ -1,0 +1,26 @@
+syntax = "proto3";
+//package fink02.stream.typeinfo.model;
+// protoc --java_out=. xxx.proto
+option java_outer_classname = "PersonMessage";
+option java_package = "fink02.stream.typeinfo.model";
+// https://developers.google.cn/protocol-buffers/docs/proto3
+message PersonModel{
+    int32 id = 1;
+    string name = 2;
+    string emil = 3;
+
+    repeated PersonAddress addresses = 4;
+    message PersonAddress{
+        int32 id = 1;
+        string name = 2;
+    }
+    Gender gender = 5;
+}
+
+
+
+enum Gender{
+    male=0;
+    female=1;
+}
+

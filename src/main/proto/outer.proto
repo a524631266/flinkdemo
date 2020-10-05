@@ -1,0 +1,12 @@
+syntax = "proto3";
+option java_outer_classname = "OuterMessage";
+option java_package = "fink02.stream.typeinfo.model";
+// https://developers.google.cn/protocol-buffers/docs/proto3
+message Outer{
+    int32 id = 1;
+    repeated Inner inner = 2;
+    message Inner{
+        int32 id = 1;
+    }
+    repeated int32 foo = 3;
+}
