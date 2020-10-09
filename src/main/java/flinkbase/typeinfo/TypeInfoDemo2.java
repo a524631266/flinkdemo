@@ -2,7 +2,7 @@ package flinkbase.typeinfo;
 
 import flinkbase.model.Person;
 import flinkbase.typeinfo.model.PersonMessage;
-import flinkbase.stream.typeinfo.model.PersonModel;
+
 import org.apache.flink.api.common.typeinfo.BasicTypeInfo;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.typeutils.TypeExtractor;
@@ -61,8 +61,8 @@ public class TypeInfoDemo2 {
         TypeInformation<PersonMessage.PersonModel> personMessage = TypeInformation.of(PersonMessage.PersonModel.class);
         System.out.println(personMessage);
         // 无参构造函数是私有的,即使有public类型的有参构造
-        TypeInformation<PersonModel> personModel = TypeInformation.of(PersonModel.class);
-        System.out.println(personModel);
+//        TypeInformation<PersonModel> personModel = TypeInformation.of(PersonModel.class);
+//        System.out.println(personModel);
 
     }
 
