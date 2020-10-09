@@ -1,4 +1,4 @@
-package flink03.dataset;
+package flinkbase.dataset;
 
 import flinkbase.utils.EnvUtil;
 import org.apache.flink.api.java.ExecutionEnvironment;

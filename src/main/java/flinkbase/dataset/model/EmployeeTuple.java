@@ -1,4 +1,4 @@
-package flink03.dataset.model;
+package flinkbase.dataset.model;
 
 import org.apache.flink.api.common.typeinfo.TypeInfo;
 //

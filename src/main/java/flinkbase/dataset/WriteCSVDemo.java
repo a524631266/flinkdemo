@@ -1,13 +1,13 @@
-package flink03.dataset;
+package flinkbase.dataset;
 
 import flinkbase.utils.EnvUtil;
-import flink03.dataset.model.Employee;
+import flinkbase.dataset.model.Employee;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.ExecutionEnvironment;
 import org.apache.flink.api.java.operators.DataSource;
 import org.apache.flink.api.java.operators.MapOperator;
 
-import static flink03.dataset.ReadTextFileDemo.mapper;
+import static flinkbase.dataset.ReadTextFileDemo.mapper;
 
 /**
  * CSV如何保证数据写入

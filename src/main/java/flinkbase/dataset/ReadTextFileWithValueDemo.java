@@ -1,7 +1,7 @@
-package flink03.dataset;
+package flinkbase.dataset;
 
+import flinkbase.dataset.model.Employee;
 import flinkbase.utils.EnvUtil;
-import flink03.dataset.model.Employee;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.java.ExecutionEnvironment;
 import org.apache.flink.api.java.operators.DataSource;
