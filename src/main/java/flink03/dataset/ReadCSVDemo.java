@@ -1,6 +1,6 @@
 package flink03.dataset;
 
-import fink02.utils.EnvUtil;
+import flinkbase.utils.EnvUtil;
 import org.apache.flink.api.java.ExecutionEnvironment;
 
 public class ReadCSVDemo {

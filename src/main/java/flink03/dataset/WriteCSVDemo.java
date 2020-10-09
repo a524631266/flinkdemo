@@ -1,18 +1,11 @@
 package flink03.dataset;
 
-import fink02.utils.EnvUtil;
+import flinkbase.utils.EnvUtil;
 import flink03.dataset.model.Employee;
-import org.apache.flink.api.common.functions.MapFunction;
-import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
-import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.api.java.ExecutionEnvironment;
 import org.apache.flink.api.java.operators.DataSource;
 import org.apache.flink.api.java.operators.MapOperator;
-import org.apache.flink.api.java.tuple.Tuple8;
-import org.apache.flink.core.fs.FileSystem;
-
-import java.util.Date;
 
 import static flink03.dataset.ReadTextFileDemo.mapper;
 
