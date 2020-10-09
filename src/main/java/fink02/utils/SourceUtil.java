@@ -3,6 +3,7 @@ package fink02.utils;
 import fink02.model.Address;
 import fink02.model.Person;
 import fink02.model.SubPerson;
+import fink02.stream.typeinfo.example.protocol.ProtoColType;
 import javassist.ClassPool;
 import javassist.CtClass;
 import org.apache.flink.api.common.ExecutionConfig;
@@ -13,6 +14,7 @@ import org.apache.flink.streaming.api.functions.source.RichSourceFunction;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
 import org.mockito.Mockito;
 
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 public class SourceUtil {
@@ -51,6 +53,37 @@ public class SourceUtil {
         };
     }
 
+
+    /**
+     * 产生随机的对象的source
+     * @param sourceClass
+     * @param <T>
+     * @return
+     */
+    public static <T> SourceFunction<ProtoColType<T>> createStreamSourceWrapperProtocol(Class<T> sourceClass){
+        return new SourceFunction<ProtoColType<T>>() {
+            private boolean running = true;
+            @Override
+            public void run(SourceContext<ProtoColType<T>> ctx) throws Exception {
+                while (running){
+                    Random random = new Random();
+                    int i = random.nextInt(100);
+                    Person person = new Person();
+                    person.setAge(i);
+                    person.setAddress(new Address(0, "asddd"));
+//                    System.out.println(person);
+                    ProtoColType<Person> personProtoColType = new ProtoColType<Person>();
+                    personProtoColType.rawObject = person;
+                    TimeUnit.SECONDS.sleep(1);
+                    ctx.collect((ProtoColType<T>) personProtoColType);
+                }
+            }
+            @Override
+            public void cancel() {
+                running = false;
+            }
+        };
+    }
     public static <T> SourceFunction<T> createStreamRichSource(Class<T> sourceClass){
         return new RichSourceFunction<T>() {
             private boolean running = true;

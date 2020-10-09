@@ -57,5 +57,19 @@ public class EnvUtil {
         env.getConfig().setAutoWatermarkInterval(1000L);
         return env;
     }
+
+    public static StreamExecutionEnvironment createRemote(String host, int port, int parallelism, String jarFiles) {
+        return StreamExecutionEnvironment.createRemoteEnvironment(host, port , parallelism,jarFiles);
+//        return null;
+    }
+    public static StreamExecutionEnvironment createDefaultRemote() {
+        String host = "192.168.10.63";
+        int port = 30081;
+        int parallelism = 2;
+        String jarFiles = "E:\\github\\flinkdemo\\target\\flinkdemo-1.0-SNAPSHOT.jar";
+        return createRemote(host, port , parallelism,jarFiles);
+//        return null;
+    }
+
 }
 
