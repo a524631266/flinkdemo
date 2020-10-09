@@ -10,16 +10,23 @@ import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
 import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+
+import java.util.concurrent.TimeUnit;
+
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyString;
 
 
 public class SourceUtilTest {
 
     @org.junit.Test
-    public void createStreamSource() throws Exception {
+    public void createMockStreamSource() throws Exception {
 
         StreamExecutionEnvironment env = EnvUtil.getLocalWebEnv();
         ExecutionConfig config = env.getConfig();
-        config.registerPojoType(Mockito.mock(Person.class).getClass());
+//        config.registerPojoType(Mockito.mock(Person.class).getClass());
         SourceFunction<Person> person = SourceUtil.createStreamSource(Person.class);
 
         DataStreamSource<Person> data = env.addSource(person);
@@ -31,12 +38,12 @@ public class SourceUtilTest {
                 return value.getAge();
             }
         });
-        returns.map(new MapFunction<Person, Address>() {
-            @Override
-            public Address map(Person value) throws Exception {
-                return value.getAddress();
-            }
-        }).print();
+//        returns.map(new MapFunction<Person, Address>() {
+//            @Override
+//            public Address map(Person value) throws Exception {
+//                return value.getAddress();
+//            }
+//        }).print();
         map.printToErr();
 
         env.execute("josr");
@@ -70,6 +77,17 @@ public class SourceUtilTest {
 
     @org.junit.Test
     public void createStateSource() throws Exception {
+        while (true){
+
+            Person mock = Mockito.mock(Person.class);
+//            Person mock = new Person();
+            Address address = new Address();
+            Mockito.when(mock.getAddress()).thenReturn(address);
+            Integer age = anyInt();
+            Mockito.when(mock.getAge()).thenReturn(age);
+            System.out.println(mock.toString());
+            TimeUnit.SECONDS.sleep(1);
+        }
 
 
     }
