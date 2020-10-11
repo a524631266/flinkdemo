@@ -1,5 +1,6 @@
 package flinkbase.hdfs;
 
+import lombok.ToString;
 import org.apache.flink.shaded.curator4.org.apache.curator.shaded.com.google.common.annotations.VisibleForTesting;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
@@ -9,6 +10,7 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
+@ToString
 public class PersonHD implements WritableComparable<PersonHD> {
     private Text name = new Text();
     private IntWritable age = new IntWritable();
