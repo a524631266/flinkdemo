@@ -3,6 +3,7 @@ package flinkbase.typeinfo.example.protocol;
 import org.apache.flink.api.common.ExecutionConfig;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeutils.TypeSerializer;
+import org.apache.flink.api.java.typeutils.TypeExtractor;
 import org.apache.flink.api.java.typeutils.runtime.kryo.KryoSerializer;
 
 import java.util.HashMap;
@@ -14,7 +15,7 @@ import java.util.Map;
  * @param <T>
  */
 public class ProtoColTypeInfo<T> extends TypeInformation<T> {
-    private final TypeInformation innerTypeInfo;
+    private TypeInformation innerTypeInfo;
     private final Class<T> innerClass;
 
     /**
@@ -22,13 +23,22 @@ public class ProtoColTypeInfo<T> extends TypeInformation<T> {
      * @param cls 类
      * @param t 参数数据类型
      */
-    public ProtoColTypeInfo( Class<T> cls, TypeInformation<T> t) {
+    public ProtoColTypeInfo( Class<T> cls) {
+        innerClass = cls;
+//        this.innerTypeInfo = t;
+    }
+    /**
+     *
+     * @param cls 类
+     * @param t 参数数据类型
+     */
+    public ProtoColTypeInfo( Class<T> cls , TypeInformation<T> t) {
         innerClass = cls;
         this.innerTypeInfo = t;
     }
 
     public TypeInformation getInnerTypeInfo() {
-        return innerTypeInfo;
+        return innerTypeInfo == null?TypeExtractor.getForClass(innerClass):innerTypeInfo;
     }
 
     @Override
@@ -114,7 +124,7 @@ public class ProtoColTypeInfo<T> extends TypeInformation<T> {
         if(parameters.isEmpty()){
             // 节约内存1
             Map<String, TypeInformation<?>> result = new HashMap<>(1);
-            result.put("T", innerTypeInfo);
+            result.put("T", getInnerTypeInfo());
             return result;
         }
         return parameters;
