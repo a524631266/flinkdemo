@@ -71,5 +71,20 @@ public class EnvUtil {
 //        return null;
     }
 
+    public static void setCheckpointWithHDFS(StreamExecutionEnvironment env) {
+        CheckpointConfig config = env.getCheckpointConfig();
+
+        config.enableExternalizedCheckpoints(CheckpointConfig.ExternalizedCheckpointCleanup.RETAIN_ON_CANCELLATION);
+        config.setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE);
+        // 设置checkpoint时间间隔（在本地，会有一个（checkpoint_dir）/chk-1638）
+        config.setCheckpointInterval(2000);
+        // 最少间隔
+        config.setMinPauseBetweenCheckpoints(500);
+        config.setCheckpointTimeout(60000);
+        // 同一时间只允许进行一次checkpoint
+        config.setMaxConcurrentCheckpoints(1);
+        // checkpiont 一般默认会把状态存储下来
+        env.setStateBackend(new FsStateBackend("hdfs://192.168.10.61:8020/flink/checkpoint/organization"));
+    }
 }
 

@@ -34,7 +34,7 @@ public class MySqlCDCStarter implements SourceFuncGenerator{
     public static void main(String[] args) throws Exception {
         StreamExecutionEnvironment env = EnvUtil.getLocalWebEnv();
 //        EnvUtil.setCheckpoint(env , CheckPoint);
-
+        EnvUtil.setCheckpointWithHDFS(env);
         DataStreamSource<Organization> source = env.addSource(new MySqlCDCStarter().generate());
         source.print().setParallelism(1);
         env.execute("consume orginaztion");
