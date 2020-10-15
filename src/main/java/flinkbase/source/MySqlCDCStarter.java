@@ -3,14 +3,17 @@ package flinkbase.source;
 import com.alibaba.ververica.cdc.connectors.mysql.MySQLSource;
 import com.alibaba.ververica.cdc.debezium.DebeziumSourceFunction;
 import com.alibaba.ververica.cdc.debezium.StringDebeziumDeserializationSchema;
+import flinkbase.restartstrategy.RestartStrategyUtil;
 import flinkbase.source.mysql.model.Organization;
 import flinkbase.typeinfo.example.protocol.ProtoColType;
 import flinkbase.typeinfo.example.protocol.ProtoColTypeInfo;
 import flinkbase.utils.EnvUtil;
 import lombok.SneakyThrows;
+import org.apache.flink.api.common.restartstrategy.RestartStrategies;
 import org.apache.flink.api.common.state.*;
 import org.apache.flink.api.java.typeutils.TypeExtractor;
 import org.apache.flink.configuration.Configuration;
+import org.apache.flink.runtime.executiongraph.restart.RestartStrategy;
 import org.apache.flink.runtime.state.FunctionInitializationContext;
 import org.apache.flink.runtime.state.FunctionSnapshotContext;
 import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction;
@@ -32,7 +35,9 @@ import java.util.concurrent.TimeUnit;
 public class MySqlCDCStarter implements SourceFuncGenerator{
 
     public static void main(String[] args) throws Exception {
-        StreamExecutionEnvironment env = EnvUtil.getLocalWebEnv();
+//        StreamExecutionEnvironment env = EnvUtil.getLocalWebEnv();
+        StreamExecutionEnvironment env = EnvUtil.createDefaultRemote();
+        RestartStrategyUtil.setRestartStrategy(env);
 //        EnvUtil.setCheckpoint(env , CheckPoint);
         EnvUtil.setCheckpointWithHDFS(env);
         DataStreamSource<Organization> source = env.addSource(new MySqlCDCStarter().generate());
@@ -158,6 +163,7 @@ public class MySqlCDCStarter implements SourceFuncGenerator{
             Iterator<Integer> iterator = unionState.get().iterator();
             while (iterator.hasNext()){
                 Integer next = iterator.next();
+                System.out.println("restore id:" + next);
                 max = max > next ? max: next;
             }
             System.out.println("watch MAX: " + max);

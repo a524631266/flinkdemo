@@ -10,7 +10,7 @@ import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.bridge.java.BatchTableEnvironment;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 
-public class MySqlNoCDC {
+public class MySqlNoCDCStarter {
     public static void main(String[] args) throws Exception {
 ////        StreamExecutionEnvironment defaultRemote = EnvUtil.createDefaultRemote();
 //        StreamExecutionEnvironment env = EnvUtil.getLocalWebEnv();
@@ -25,7 +25,7 @@ public class MySqlNoCDC {
         for (String string : strings) {
             System.out.println("catalogs: "+ string);
         }
-
+//        import org.apache.commons.cli.Option.builder()
         DebeziumSourceFunction<String> observer = MySQLSource.<String>builder()
                 .port(3306)
                 .hostname("192.168.10.51")
