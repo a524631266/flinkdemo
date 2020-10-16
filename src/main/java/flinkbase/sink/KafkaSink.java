@@ -56,7 +56,7 @@ public class KafkaSink {
                 topicId,
                 scheme
         ));
-        startSource.print();
+//        startSource.print();
         env.execute("orgstart ");
     }
 
