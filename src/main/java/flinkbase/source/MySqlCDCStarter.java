@@ -11,6 +11,7 @@ import flinkbase.utils.EnvUtil;
 import lombok.SneakyThrows;
 import org.apache.flink.api.common.restartstrategy.RestartStrategies;
 import org.apache.flink.api.common.state.*;
+import org.apache.flink.api.java.Utils;
 import org.apache.flink.api.java.typeutils.TypeExtractor;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.runtime.executiongraph.restart.RestartStrategy;
@@ -24,6 +25,8 @@ import org.apache.flink.streaming.api.functions.source.SourceFunction;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.mockito.internal.matchers.Or;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 import java.util.Iterator;
@@ -31,12 +34,18 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * 标准的mysql一次性语义写法,怎么破
+ * checkpoint地址目录
+ * flink run -s hdfs://hw011:8020/flink/checkpoint/organization/55fab8c65a732f0a1e9ae4d39267d040/chk-21 -c flinkbase.source.MySqlCDCStarter /tmp/flink-web-1b2e4e9d-a35c-425c-85ac-fdffae537ec6/flink-web-upload/e59ec276-b812-4a44-b240-ee7842e2c5f3_original-flinkdemo-1.0-SNAPSHOT.jar
+ *
+ * savepoint 使用案例 flink savepoint 5d822b08ef80769feb25d2860a83b080 hdfs://hw011:8020/flink/savepoint
+ * 可以看到savepoint存储的是整个状态数据，这个是二进制的
  */
 public class MySqlCDCStarter implements SourceFuncGenerator{
-
+    private static final Logger LOG = LoggerFactory.getLogger(MySqlCDCStarter.class);
     public static void main(String[] args) throws Exception {
 //        StreamExecutionEnvironment env = EnvUtil.getLocalWebEnv();
-        StreamExecutionEnvironment env = EnvUtil.createDefaultRemote();
+//        StreamExecutionEnvironment env = EnvUtil.createDefaultRemote();
+        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         RestartStrategyUtil.setRestartStrategy(env);
 //        EnvUtil.setCheckpoint(env , CheckPoint);
         EnvUtil.setCheckpointWithHDFS(env);
@@ -86,8 +95,9 @@ public class MySqlCDCStarter implements SourceFuncGenerator{
             while (running) {
                 preparedStatement.setInt(1, id);
                 ResultSet resultSet = preparedStatement.executeQuery();
-                lastOffset = simpleHandlerResultReturnMax(ctx, resultSet);
-                System.out.println("next part");
+                simpleHandlerResultReturnMax(ctx, resultSet);
+                LOG.info(Utils.getCallLocationName() + "=====next part");
+
 
                 // use mybatis?? TODO(使用 结果集映射方法)
             }
@@ -102,7 +112,7 @@ public class MySqlCDCStarter implements SourceFuncGenerator{
          * @throws InstantiationException
          * @throws IllegalAccessException
          */
-        private int simpleHandlerResultReturnMax(SourceContext<Organization> ctx, ResultSet resultSet) throws SQLException, InstantiationException, IllegalAccessException, InterruptedException {
+        private void simpleHandlerResultReturnMax(SourceContext<Organization> ctx, ResultSet resultSet) throws SQLException, InstantiationException, IllegalAccessException, InterruptedException {
             // simple handle result
             int max = 1;
             while (resultSet.next()){
@@ -126,8 +136,10 @@ public class MySqlCDCStarter implements SourceFuncGenerator{
                 ctx.collect(organization);
                 max = max < id ? id : max;
                 TimeUnit.MILLISECONDS.sleep(500);
+                lastOffset = max;
+                LOG.info(Utils.getCallLocationName() + "=====current query id:" + max);
             }
-            return max;
+//            return max;
         }
 
         @SneakyThrows
@@ -166,7 +178,8 @@ public class MySqlCDCStarter implements SourceFuncGenerator{
                 System.out.println("restore id:" + next);
                 max = max > next ? max: next;
             }
-            System.out.println("watch MAX: " + max);
+            LOG.info(Utils.getCallLocationName() + "=====current query id:" + max);
+//            System.out.println("watch MAX: " + max);
             lastOffset = max;
         }
 
@@ -178,7 +191,7 @@ public class MySqlCDCStarter implements SourceFuncGenerator{
          */
         @Override
         public void snapshotState(FunctionSnapshotContext context) throws Exception {
-            System.out.println("snap " + ++count);
+            LOG.info(Utils.getCallLocationName() + "=====snapshotState " + ++count);
             unionState.add(lastOffset);
         }
     }
