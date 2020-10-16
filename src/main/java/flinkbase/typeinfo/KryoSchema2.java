@@ -66,6 +66,11 @@ public class KryoSchema2 implements SerializationSchema<Organization>, KeyedSeri
         return copyOfBuffer;
     }
 
+    /**
+     * 如果为null，使用product内部自定义的Topic，否则使用该topic
+     * @param organization
+     * @return
+     */
     @Override
     public String getTargetTopic(Organization organization) {
         return null;

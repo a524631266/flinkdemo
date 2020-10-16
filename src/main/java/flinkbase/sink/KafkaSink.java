@@ -31,8 +31,9 @@ import java.util.Properties;
 
 public class KafkaSink {
     public static void main(String[] args) throws Exception {
+        StreamExecutionEnvironment env = EnvUtil.getLocalWebEnv();
 //        StreamExecutionEnvironment env = EnvUtil.createDefaultRemote();
-        StreamExecutionEnvironment env = EnvUtil.createDefaultRemote();
+
         SourceFunction<Organization> mysqlSource = new MySqlCDCStarter().generate();
         DataStreamSource<Organization> startSource = env.addSource(mysqlSource);
         ParameterTool parameterTool = ExecutionEnvUtil.createParameterTool(args);
@@ -55,7 +56,6 @@ public class KafkaSink {
                 topicId,
                 scheme
         ));
-
         startSource.print();
         env.execute("orgstart ");
     }
