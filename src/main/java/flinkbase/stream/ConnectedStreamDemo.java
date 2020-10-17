@@ -1,6 +1,8 @@
 package flinkbase.stream;
 
 import flinkbase.utils.EnvUtil;
+import org.apache.flink.api.java.functions.KeySelector;
+import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.streaming.api.datastream.ConnectedStreams;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
@@ -9,7 +11,7 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.co.CoFlatMapFunction;
 import org.apache.flink.streaming.api.functions.co.CoMapFunction;
 import org.apache.flink.util.Collector;
-import scala.Tuple2;
+
 
 import java.util.concurrent.TimeUnit;
 
@@ -33,13 +35,21 @@ public class ConnectedStreamDemo {
         DataStreamSource<Integer> source2 = localWebEnv.fromElements(1, 2, 4, 5, 6);
         ConnectedStreams<Tuple2<String , Integer>, Integer> connect = source1.connect(source2);
 //        mapMethod(connect);
+        flatmapMethod(connect);
+
+        localWebEnv.execute();
+
+
+    }
+
+    private static void flatmapMethod(ConnectedStreams<Tuple2<String, Integer>, Integer> connect) {
         connect.flatMap(new CoFlatMapFunction<Tuple2<String, Integer>, Integer, Tuple3<String, Integer, Integer>>() {
 
             private Integer number = 0;
 
             @Override
             public void flatMap1(Tuple2<String, Integer> value, Collector<Tuple3<String, Integer, Integer>> out) throws Exception {
-                out.collect(new Tuple3<String, Integer, Integer>(value._1 , value._2, number));
+                out.collect(new Tuple3<String, Integer, Integer>(value.f0 , value.f1, number));
             }
 
             @Override
@@ -49,9 +59,6 @@ public class ConnectedStreamDemo {
                 number = value;
             }
         }).printToErr();
-        localWebEnv.execute();
-
-
     }
 
     /**
@@ -62,7 +69,7 @@ public class ConnectedStreamDemo {
         SingleOutputStreamOperator<Tuple2<Integer, String>> map = connect.map(new CoMapFunction<Tuple2<String, Integer>, Integer, Tuple2<Integer, String>>() {
             @Override
             public Tuple2<Integer, String> map1(Tuple2<String, Integer> value) throws Exception {
-                return new Tuple2<>(value._2, value._1);
+                return new Tuple2<>(value.f1, value.f0);
             }
 
             @Override
