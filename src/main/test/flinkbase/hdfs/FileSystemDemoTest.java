@@ -12,7 +12,7 @@ import static org.junit.Assert.*;
 
 
 public class FileSystemDemoTest {
-    public static String TEST_PATH = "data/hdfs/b.txt";
+    public static String TEST_PATH = "data/hdfs/Sequence.seq";
     public Configuration configuration;
     public LocalFileSystem localFileSystem;
     @Before
@@ -62,6 +62,8 @@ public class FileSystemDemoTest {
             for (String topologyPath : topologyPaths) {
                 System.out.println("topologyPath:" + topologyPath);
             }
+            long length = block.getLength();
+            System.out.println("len:" + length);
         }
     }
 
