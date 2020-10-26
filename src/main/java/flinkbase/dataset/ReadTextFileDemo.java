@@ -3,6 +3,7 @@ package flinkbase.dataset;
 import flinkbase.dataset.model.Employee;
 import flinkbase.utils.EnvUtil;
 import org.apache.flink.api.common.functions.MapFunction;
+import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.ExecutionEnvironment;
 import org.apache.flink.api.java.operators.DataSource;
 import org.apache.flink.api.java.operators.MapOperator;
@@ -14,6 +15,8 @@ public class ReadTextFileDemo {
     public static void main(String[] args) throws Exception {
         ExecutionEnvironment env = EnvUtil.getLoalWebDataSetEnv();
         DataSource<String> stringDataSource = env.readTextFile("data/emp.txt");
+
+        stringDataSource.printToErr();
         MapOperator<String, Employee> map = mapper(stringDataSource);
         map.filter(employee -> employee!=null)
                 .print();
