@@ -1,5 +1,6 @@
 package flinkbase.utils;
 
+import com.zhangll.flink.AnnotationMockContext;
 import flinkbase.model.Address;
 import flinkbase.model.Person;
 import flinkbase.model.SubPerson;
@@ -24,21 +25,12 @@ public class SourceUtil {
             private boolean running = true;
             @Override
             public void run(SourceContext<T> ctx) throws Exception {
+                AnnotationMockContext annotationMockContext = new AnnotationMockContext();
                 while (running){
-//                    T mock = Mockito.mock(sourceClass);
-//                    ctx.collect(mock);   import org.mockito.Mockito
-//                    Class<Mockito> mockitoClass = Mockito.class;
-//                    Method mock1 = mockitoClass.getDeclaredMethod("mock", Class.class);
-//                    T mock =(T) mock1.invoke(null, sourceClass);
-//                    System.out.println(mock);
-//                    T mock2 = Mockito.mock(sourceClass, Mockito.withSettings().serializable());
-//                    System.out.println(mock2);
-//                    ctx.collect(mock2);
-                    Person person = new Person();
-                    person.setAddress(new Address(0, "asddd"));
+                    Object mock = annotationMockContext.mock(sourceClass);
 //                    System.out.println(person);
                     TimeUnit.SECONDS.sleep(1);
-                    ctx.collect((T) person);
+                    ctx.collect((T) mock);
                 }
             }
             @Override
