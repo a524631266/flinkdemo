@@ -5,9 +5,8 @@ import com.zhangll.flink.rule.Rule;
 import com.zhangll.flink.uitl.RandomUtil;
 
 import java.lang.reflect.Field;
-import java.util.Random;
 
-public class FloatRandom extends AbstractRandom{
+public class FloatSimpleRandom extends AbstractSimpleRandom {
     private static DefaultFloatRule defaultRule = new DefaultFloatRule(
             new FieldToken.FieldTokenBuilder()
                     .setMin(1).setMax(10)

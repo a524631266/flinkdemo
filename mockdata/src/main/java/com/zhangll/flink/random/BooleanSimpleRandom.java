@@ -1,14 +1,13 @@
 package com.zhangll.flink.random;
 
 import com.zhangll.flink.model.FieldToken;
-import com.zhangll.flink.model.FieldTokenFactory;
 import com.zhangll.flink.rule.Rule;
 import com.zhangll.flink.uitl.RandomUtil;
 
 import java.lang.reflect.Field;
 import java.util.Random;
 
-public class BooleanRandom extends AbstractRandom{
+public class BooleanSimpleRandom extends AbstractSimpleRandom {
     private static DefaultBooleanRule defaultBooleanRule = new DefaultBooleanRule(
             new FieldToken.FieldTokenBuilder()
                     .setMin(1)

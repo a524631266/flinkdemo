@@ -14,7 +14,7 @@ import java.util.Random;
  * 匹配flink的Date时间
  * 生成逻辑与long相关
  */
-public class SqlTimeRandom extends AbstractRandom {
+public class SqlTimeSimpleRandom extends AbstractSimpleRandom {
     public static Rule<Date> DATE = new DefaultDateRule(
             new FieldToken.FieldTokenBuilder()
                     .setMin(new Long(System.currentTimeMillis() / 1000 - 24 *60 *60).intValue())
@@ -32,10 +32,10 @@ public class SqlTimeRandom extends AbstractRandom {
                     .setMax(new Long(System.currentTimeMillis() / 1000 + 24 *60 *60).intValue()).build()
     );
     private final Class innerClass;
-    private SqlTimeRandom(){
+    private SqlTimeSimpleRandom(){
         this(null);
     }
-    public SqlTimeRandom(Class cls) {
+    public SqlTimeSimpleRandom(Class cls) {
         this.innerClass = cls;
     }
 

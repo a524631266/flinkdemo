@@ -11,8 +11,8 @@ import java.lang.reflect.Field;
 /**
  * 在Mock体系中属于执行器的范围
  */
-public abstract class AbstractRandom implements RandomType {
-    public static Logger LOG = LoggerFactory.getLogger(AbstractRandom.class);
+public abstract class AbstractSimpleRandom implements SimpleRandomType {
+    public static Logger LOG = LoggerFactory.getLogger(AbstractSimpleRandom.class);
     protected RulePostProcessor postProcessor = new RulePostProcessor();
 
     @Override

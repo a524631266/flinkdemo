@@ -1,14 +1,13 @@
 package com.zhangll.flink.random;
 
 import com.zhangll.flink.model.FieldToken;
-import com.zhangll.flink.model.FieldTokenFactory;
 import com.zhangll.flink.rule.Rule;
 import com.zhangll.flink.uitl.RandomUtil;
 
 import java.lang.reflect.Field;
 import java.util.Random;
 
-public class DoubleRandom extends AbstractRandom{
+public class DoubleSimpleRandom extends AbstractSimpleRandom {
     private static DefaultDoubleRule defaultDoubleRule = new DefaultDoubleRule(
             new FieldToken.FieldTokenBuilder()
                     .setMin(1).setMax(10)

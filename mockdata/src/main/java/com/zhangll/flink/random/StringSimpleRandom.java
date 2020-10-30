@@ -7,9 +7,8 @@ import com.zhangll.flink.uitl.RandomUtil;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Random;
 
-public class StringRandom extends AbstractRandom{
+public class StringSimpleRandom extends AbstractSimpleRandom {
     private DefaultStringRule defaultStringRule = new DefaultStringRule(
             new FieldToken.FieldTokenBuilder()
                     .setMin(1)
