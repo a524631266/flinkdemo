@@ -1,5 +1,7 @@
 package com.zhangll.flink.uitl;
 
+import com.zhangll.flink.annotation.PojoTokenInfo;
+
 import java.lang.reflect.Field;
 
 public class KeyUtil {
@@ -12,6 +14,24 @@ public class KeyUtil {
      * @return com.zhangll.flink.Father#sonsNameList1
      */
     public static String generateKey(Class cls, Field field){
+        if (field ==null) {
+            return cls.getName();
+        }
         return cls.getName() +"#"+ field.getName();
     }
+    public static String generateKey(Class cls, PojoTokenInfo pojoTokenInfo){
+        if ("".equals(pojoTokenInfo.id())) {
+            return cls.getName();
+        }
+        return cls.getName() +"#"+ pojoTokenInfo.id();
+    }
+
+    public static String generateKey(Class cls, PojoTokenInfo pojoTokenInfo, String fieldName){
+        String className = "";
+        if ((className= pojoTokenInfo.id()).equals("")) {
+            className = cls.getName();
+        }
+        return className + pojoTokenInfo.id() + fieldName;
+    }
+
 }

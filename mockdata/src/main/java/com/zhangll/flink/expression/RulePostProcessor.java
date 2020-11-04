@@ -1,6 +1,7 @@
 package com.zhangll.flink.expression;
 
 
+import com.zhangll.flink.expression.regrex.RandomStringGenerator;
 import com.zhangll.flink.type.BasicType;
 import com.zhangll.flink.uitl.RandomUtil;
 import org.slf4j.Logger;
@@ -20,9 +21,10 @@ import java.util.stream.Stream;
  */
 public class RulePostProcessor {
      public static Logger LOG = LoggerFactory.getLogger(RulePostProcessor.class);
+    RandomStringGenerator regrexGenerater = new RandomStringGenerator();
     /**
      * 在compute之后处理的结果
-     *
+     * 处理兼容问题比如 char[] 转化为 Char[]
      * @return
      */
     public Object postProcessAfterCompute(Object object) {
@@ -38,8 +40,15 @@ public class RulePostProcessor {
                 cols.add(postProcessAfterCompute(objects[i]));
             }
             return cols;
-        }else {
-           return handleOne(object);
+        } else if (BasicType.isArray(object.getClass())) {
+            Object[] newObject = (Object[]) object;
+            int size = newObject.length;
+            for (int i = 0; i < size; i++) {
+                newObject[i] = postProcessAfterCompute(newObject[i]);
+            }
+            return newObject;
+        } else {
+            return handleOne(object);
         }
     }
 
@@ -55,11 +64,12 @@ public class RulePostProcessor {
             String middleStr = ((String) string).toLowerCase();
             if (middleStr.contains("@")) {
                 middleStr = middleStr.replace("@first", RandomUtil.getFirstName());
-                middleStr = middleStr.replace("@middle", RandomUtil.getFirstName());
-                middleStr = middleStr.replace("@last", RandomUtil.getFirstName());
+                middleStr = middleStr.replace("@middle", RandomUtil.getMiddleName());
+                middleStr = middleStr.replace("@last", RandomUtil.getLastName());
                 return middleStr;
             } else if (middleStr.startsWith("/") && middleStr.endsWith("/")) {
-                return "正则表达式";
+                String replace = middleStr.substring(1,middleStr.length()-1 );
+                return regrexGenerater.generateByRegex(replace);
             }
         }
         return string;
