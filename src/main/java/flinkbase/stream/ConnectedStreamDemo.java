@@ -42,7 +42,7 @@ public class ConnectedStreamDemo {
 
     }
 
-    private static void flatmapMethod(ConnectedStreams<Tuple2<String, Integer>, Integer> connect) {
+    public static void flatmapMethod(ConnectedStreams<Tuple2<String, Integer>, Integer> connect) {
         connect.flatMap(new CoFlatMapFunction<Tuple2<String, Integer>, Integer, Tuple3<String, Integer, Integer>>() {
 
             private Integer number = 0;
@@ -65,7 +65,7 @@ public class ConnectedStreamDemo {
      * Comap union操作
      * @param connect
      */
-    private static void mapMethod(ConnectedStreams<Tuple2<String, Integer>, Integer> connect) {
+    public static void mapMethod(ConnectedStreams<Tuple2<String, Integer>, Integer> connect) {
         SingleOutputStreamOperator<Tuple2<Integer, String>> map = connect.map(new CoMapFunction<Tuple2<String, Integer>, Integer, Tuple2<Integer, String>>() {
             @Override
             public Tuple2<Integer, String> map1(Tuple2<String, Integer> value) throws Exception {
