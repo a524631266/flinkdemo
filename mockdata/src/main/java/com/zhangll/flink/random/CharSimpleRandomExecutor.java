@@ -4,6 +4,7 @@ import com.zhangll.flink.MockContext;
 import com.zhangll.flink.model.FieldNode;
 import com.zhangll.flink.model.FieldToken;
 import com.zhangll.flink.rule.Rule;
+import com.zhangll.flink.uitl.RandomUtil;
 
 import java.util.Random;
 
@@ -20,7 +21,7 @@ public class CharSimpleRandomExecutor extends AbstractRandomExecutor {
     }
 
     @Override
-    public Rule getRule() {
+    public Rule getDefaultRule() {
         // TODO
         return defaultRule;
     }
@@ -28,7 +29,7 @@ public class CharSimpleRandomExecutor extends AbstractRandomExecutor {
     @Override
     public Rule getRule(FieldToken fieldToken) {
         if(fieldToken == null){
-            return getRule();
+            return getDefaultRule();
         }
         return new DefaultCharRule(fieldToken);
     }
@@ -59,8 +60,7 @@ public class CharSimpleRandomExecutor extends AbstractRandomExecutor {
             if(fieldToken.getCount() != 0){
                 return (char) fieldToken.getCount();
             }
-            int gap = fieldToken.getMax() - fieldToken.getMin();
-            int i = new Random().nextInt(gap) + fieldToken.getMin();
+            int i = RandomUtil.getMin2Max(fieldToken.getMin(), fieldToken.getMax());
             return (char)i;
         }
     }

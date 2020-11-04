@@ -5,6 +5,7 @@ import com.zhangll.flink.model.FieldNode;
 import com.zhangll.flink.model.FieldToken;
 import com.zhangll.flink.rule.Rule;
 import com.zhangll.flink.type.BasicType;
+import com.zhangll.flink.uitl.RandomUtil;
 
 import java.lang.reflect.Type;
 import java.util.*;
@@ -34,7 +35,7 @@ public class ListRandomExecutor<T> extends AbstractRandomExecutor {
     }
 
     @Override
-    public Rule getRule() {
+    public Rule getDefaultRule() {
 
         return defaultRule;
     }
@@ -100,8 +101,10 @@ public class ListRandomExecutor<T> extends AbstractRandomExecutor {
             }
 
             // 元素数量
-            int elementNum = (fieldToken.getMax() - fieldToken.getMin()) == 0 ?
-                    fieldToken.getCount() : fieldToken.getMax() - fieldToken.getMin();
+
+            int elementNum =fieldToken.getCount() == 0
+                    ? RandomUtil.getMin2Max(fieldToken.getMin(),fieldToken.getMax())
+                    :fieldToken.getCount();
             // 当用户的step有值且value长度大于0
             if(fieldNodeContext.getCurrentTokenInfo() != null
                     && fieldNodeContext.getCurrentTokenInfo().getStep()>0
@@ -131,6 +134,9 @@ public class ListRandomExecutor<T> extends AbstractRandomExecutor {
                             o.add(executor.getRule(fieldNodeContext.getInnerBasicTokens()).apply(mockContext, null));
                         } else {
                             o.add(mockContext.mock((Class<?>) actualTypeArguments[0], fieldNodeContext.getInnerPojoTokens()));
+//                            o.add(mockContext.mockWithContext((Class<?>) actualTypeArguments[0], fieldNodeContext));
+//                            o.add(fieldNodeContext.);
+//                            fieldNodeContext.assignInnerObject(o, mockContext);
                         }
                         // 判断子类型是否是innerType
                     }

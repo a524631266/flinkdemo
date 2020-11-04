@@ -110,8 +110,12 @@ public class FieldNode implements ASTNode{
 
     @Override
     public void assignInnerObject(Object target, MockContext context) {
-
-        ((AbstractRandomExecutor) executor).updateField(target, context,this);
+        if(isInnerType){
+            ((AbstractRandomExecutor) executor).updateField(target, context,this);
+        }else{
+            Object source = context.mockWithContext(this.currentClass, this);
+            this.swap(target, source);
+        }
 
     }
 
@@ -122,7 +126,7 @@ public class FieldNode implements ASTNode{
      */
     @SneakyThrows
     @Override
-    public void assignObject(Object target, Object source) {
+    public void swap(Object target, Object source) {
         declaredField.set(target, source);
     }
 
@@ -196,7 +200,6 @@ public class FieldNode implements ASTNode{
         }
         return false;
     }
-
     public Map<String, FieldToken> getInnerPojoTokens() {
         return innerPojoTokens;
     }

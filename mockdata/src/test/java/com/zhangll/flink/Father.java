@@ -60,8 +60,10 @@ public class Father {
             innerBasicType =  @BasicTokenInfo(min = "15", max = "30")
     )
     private Set<String> sonsNameSet;
-
-    private Son son;
+    @PojoTokenInfo(
+            @TokenMapping(field = "name", basicTokenInfo = @BasicTokenInfo(min = "3", max = "7"))
+    )
+    private Son sonff;
 
     @BasicTokenInfo(step = "4", value = {"张三", "李四" ,"王五" , "@First @Middle @last", "/\\d{ 1, 3}  abcd\\/ \\d/"}, count = "10")
     private String[] stringArr;
@@ -81,8 +83,17 @@ public class Father {
             ),
             innerBasicType = @BasicTokenInfo(min = "1233", max = "12324")
     )
-    @BasicTokenInfo(min = "1", max = "2")
+    @BasicTokenInfo(min = "10", max = "20")
     private ArrayList<Son> sonslist;
+
+    @ContainerTokenInfo(
+            innerPojoType =  @PojoTokenInfo(
+                    {
+                            @TokenMapping(field = "id", basicTokenInfo = @BasicTokenInfo(min = "1", max = "10"))
+                    }
+            )
+    )
+    @BasicTokenInfo(min = "3", max = "4")
     private Son[] sonlist2;
 
     @BasicTokenInfo(value = {"/\\d{ 1, 3}  abcd\\/ \\d/ [a-bA-H1-4]{1,5}/" , "/[a-z][A-Z][0-9]/", "/\\w\\W\\s\\S\\d\\D/", "/\\d{5,10}/"})

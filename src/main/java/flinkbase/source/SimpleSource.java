@@ -13,7 +13,7 @@ public class SimpleSource {
         StreamExecutionEnvironment env = EnvUtil.getLocalWebEnv();
         SourceFunction<Person> source = SourceUtil.createStreamSource(Person.class);
         SingleOutputStreamOperator<Person> source1 = env.addSource(source).returns(Person.class);
-
+        
         source1.print();
         env.execute("person job");
 

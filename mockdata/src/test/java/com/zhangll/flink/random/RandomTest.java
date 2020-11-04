@@ -15,6 +15,7 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import static org.junit.Assert.*;
 
@@ -55,7 +56,7 @@ public class RandomTest {
         );
         for (int i = 0; i < 1000; i++) {
             int res1 = (int) rule.apply(mockContext, null);
-            assertTrue( res1 >= min && res1 < max);
+            assertTrue( res1 >= min && res1 <= max);
         }
         Rule rule2 = integerRandom.getRule(
                 new FieldToken.FieldTokenBuilder()
@@ -71,37 +72,51 @@ public class RandomTest {
     }
     @Test
     public void testDefaultIntegerRandom(){
-        Rule rule = integerRandom.getRule();
+        Rule rule = integerRandom.getDefaultRule();
         for (int i = 0; i < 10000; i++) {
             Integer value = (Integer)rule.apply(mockContext,null);
-            assertTrue(value >= 1 && value < 1000);
+            assertTrue(value >= 1 && value <= 1000);
         }
     }
 
     @Test
     public void testDefaultLongRandom(){
-        Rule rule = longRandom.getRule();
+        Rule rule = longRandom.getDefaultRule();
         for (int i = 0; i < 10000; i++) {
             Long value = (Long)rule.apply(mockContext,null);
 //            System.out.println(value);
-            assertTrue(value >= 10 && value<1000);
+            assertTrue(value >= 10 && value<= 1000);
         }
     }
 
 
     @Test
     public void testDefaultDoubleRandom(){
-        Rule rule = doubleRandom.getRule();
+        Rule rule = doubleRandom.getDefaultRule();
         for (int i = 0; i < 10000; i++) {
             Double value = (Double)rule.apply(mockContext,null);
 //            System.out.println(value);
 //            assertTrue(value >= 10 && value<1000);
         }
     }
+
+    @Test
+    public void testDouble() {
+        for (int i = 0; i < 1000; i++) {
+            double p = 0.99;
+            int gap = 1000 - i;
+            Double d = gap * p;
+//            System.out.println("########");
+//            System.out.println(gap);
+//            System.out.println(d);
+//            System.out.println(Math.round(d));
+//            System.out.println("########");
+        }
+    }
     @Test
     public void testDefaultBooleanRandom(){
         Map<Boolean , Integer> map = new HashMap<Boolean, Integer>();
-        Rule rule = booleanRandom.getRule();
+        Rule rule = booleanRandom.getDefaultRule();
         for (int i = 0; i < 10000; i++) {
             Boolean value = (Boolean)rule.apply(mockContext,null);
             map.put(value,map.getOrDefault(value, 0)+1);
@@ -111,11 +126,11 @@ public class RandomTest {
 
     @Test
     public void testDefaultStringRandom(){
-        Rule rule = stringRandom.getRule();
+        Rule rule = stringRandom.getDefaultRule();
         for (int i = 0; i < 10000; i++) {
             String value = (String)rule.apply(mockContext,null);
 //            System.out.println(value);
-            assertTrue(value.length() >=1 && value.length() <3);
+            assertTrue(value.length() >=1 && value.length() <= 3);
         }
     }
     /**
@@ -230,7 +245,7 @@ public class RandomTest {
         Rule rule = stringRandom.getRule(token);
         for (int i = 0; i < 200; i++) {
             String object = (String) rule.apply(mockContext,null);
-            assertTrue( object.length() >= min && object.length() < max);
+            assertTrue( object.length() >= min && object.length() <= max);
         }
 
     }
@@ -349,7 +364,7 @@ public class RandomTest {
      */
     @Test
     public void testDefalutListRandomRuleForInteger() throws NoSuchFieldException {
-        ListRandomExecutor.DefaultListRule rule = (ListRandomExecutor.DefaultListRule)listRandom.getRule();
+        ListRandomExecutor.DefaultListRule rule = (ListRandomExecutor.DefaultListRule)listRandom.getDefaultRule();
         int count = 10;
         Field field = Father.class.getDeclaredField("sonsAgeList");
 
@@ -367,7 +382,7 @@ public class RandomTest {
      */
     @Test
     public void testDefalutListRandomRuleForString() throws NoSuchFieldException {
-        ListRandomExecutor.DefaultListRule rule = (ListRandomExecutor.DefaultListRule)listRandom.getRule();
+        ListRandomExecutor.DefaultListRule rule = (ListRandomExecutor.DefaultListRule)listRandom.getDefaultRule();
         int count = 10;
         Field field = Father.class.getDeclaredField("sonsNameList");
         for (int i = 0; i < 200; i++) {
@@ -383,7 +398,7 @@ public class RandomTest {
      */
     @Test
     public void testDefalutListRandomRuleForDouble() throws NoSuchFieldException {
-        ListRandomExecutor.DefaultListRule rule = (ListRandomExecutor.DefaultListRule)listRandom.getRule();
+        ListRandomExecutor.DefaultListRule rule = (ListRandomExecutor.DefaultListRule)listRandom.getDefaultRule();
         int count = 10;
         Field field = Father.class.getDeclaredField("sonsMoneyList");
         for (int i = 0; i < 200; i++) {
@@ -399,7 +414,7 @@ public class RandomTest {
      */
     @Test
     public void testDefalutListRandomRuleForLong() throws NoSuchFieldException {
-        ListRandomExecutor.DefaultListRule rule = (ListRandomExecutor.DefaultListRule)listRandom.getRule();
+        ListRandomExecutor.DefaultListRule rule = (ListRandomExecutor.DefaultListRule)listRandom.getDefaultRule();
         int count = 10;
         Field field = Father.class.getDeclaredField("sonsLongList");
         for (int i = 0; i < 200; i++) {

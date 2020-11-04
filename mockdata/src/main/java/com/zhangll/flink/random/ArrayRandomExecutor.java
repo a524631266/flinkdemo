@@ -5,6 +5,7 @@ import com.zhangll.flink.model.FieldNode;
 import com.zhangll.flink.model.FieldToken;
 import com.zhangll.flink.rule.Rule;
 import com.zhangll.flink.type.BasicType;
+import com.zhangll.flink.uitl.RandomUtil;
 
 
 import java.lang.reflect.Array;
@@ -26,7 +27,7 @@ public class ArrayRandomExecutor<T> extends AbstractRandomExecutor {
     }
 
     @Override
-    public Rule getRule() {
+    public Rule getDefaultRule() {
         return defaultRule;
     }
 
@@ -76,16 +77,16 @@ public class ArrayRandomExecutor<T> extends AbstractRandomExecutor {
             if(!fieldNodeContext.isArray()){
                 throw new IllegalArgumentException("must be array");
             }
-            Class<?> listType = fieldNodeContext.getComponentType();
+            Class<?> componentType = fieldNodeContext.getComponentType();
 
             // 元素数量
-            int elementNum = (fieldToken.getMax() - fieldToken.getMin()) == 0 ?
-                    fieldToken.getCount():fieldToken.getMax() - fieldToken.getMin()
-                    ;
+            int elementNum =fieldToken.getCount() == 0
+                    ? RandomUtil.getMin2Max(fieldToken.getMin(),fieldToken.getMax())
+                    :fieldToken.getCount();
             // 基本数据类型不能转化为Object[]
             // 在数组中没有
             Object[] o = (Object[]) Array.newInstance(
-                    BasicType.primitiveToWarpper(listType), elementNum);
+                    BasicType.primitiveToWarpper(componentType), elementNum);
             if(fieldNodeContext.getCurrentTokenInfo() != null
                     && fieldNodeContext.getCurrentTokenInfo().getStep()>0
                     && fieldNodeContext.getCurrentTokenInfo().getValue().length>0
@@ -101,13 +102,16 @@ public class ArrayRandomExecutor<T> extends AbstractRandomExecutor {
                 return o;
             }else {
 
-                RandomType executor = mockContext.getExecutor(listType);
+                RandomType executor = mockContext.getExecutor(componentType);
                 for (int i = 0; i < elementNum; i++) {
                     if (fieldNodeContext.innerContainerIsInnerType()) {
 
                         o[i] = executor.getRule(fieldNodeContext.getInnerBasicTokens()).apply(mockContext, fieldNodeContext);
                     } else {
-                        o[i] = mockContext.mock(listType, fieldNodeContext.getInnerPojoTokens());
+                        // componentType =  POJO Type
+                        o[i] = mockContext.mock(componentType, fieldNodeContext.getInnerPojoTokens());
+//                        fieldNodeContext.assignInnerObject(o[i], mockContext);
+//                        o[i] = mockContext.mockWithContext(componentType, fieldNodeContext);
                     }
                 }
                 return o;
