@@ -40,6 +40,38 @@ public class SourceUtil {
         };
     }
 
+    /**
+     * 产生随机的对象的source
+     * @param sourceClass
+     * @param <T>
+     * @return
+     */
+    public static <T> SourceFunction<T> createStreamSourceWithWatherMark(Class<T> sourceClass){
+        return new RichSourceFunction<T>() {
+
+            private boolean running = true;
+            @Override
+            public void run(SourceContext<T> ctx) throws Exception {
+                AnnotationMockContext annotationMockContext = new AnnotationMockContext();
+                while (running){
+                    Object mock = annotationMockContext.mock(sourceClass);
+                    if(mock instanceof Person){
+                        ctx.collectWithTimestamp((T) mock, ((Person) mock).getBirthDay().getTime());
+                    } else{
+                        ctx.collect((T) mock);
+                    }
+//                    System.out.println(person);
+                    TimeUnit.SECONDS.sleep(1);
+
+                }
+            }
+            @Override
+            public void cancel() {
+                running = false;
+            }
+        };
+    }
+
 
     /**
      * 产生随机的对象的source
