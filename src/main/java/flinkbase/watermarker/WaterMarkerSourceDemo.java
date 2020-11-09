@@ -38,9 +38,6 @@ import java.util.Iterator;
  * 2. 那么如果不分配水印或时间戳(env设置的时候，IngestionTime)，那么在keyProcess中 ctx.timestamp()为 当前处理时间
  * 3. 不管env设置的是EventTime/Process/ingestionTime，只要在source源（最好在分配时间的时候越接近source operator越好）有分配，在keyProcess中 ctx.timestamp()为分配的
  *
- *
- *
- * 二、
  */
 public class WaterMarkerSourceDemo {
     public static void main(String[] args) throws Exception {

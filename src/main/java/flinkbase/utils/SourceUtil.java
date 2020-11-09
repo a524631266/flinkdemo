@@ -66,7 +66,8 @@ public class SourceUtil {
                     } else{
                         ctx.collect((T) mock);
                     }
-                    TimeUnit.SECONDS.sleep(1);
+
+                    TimeUnit.MILLISECONDS.sleep(50);
 
                 }
             }

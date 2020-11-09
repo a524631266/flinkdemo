@@ -4,21 +4,16 @@ import flinkbase.model.Person;
 import flinkbase.utils.EnvUtil;
 import flinkbase.utils.SourceUtil;
 import org.apache.flink.streaming.api.TimeCharacteristic;
-import org.apache.flink.streaming.api.TimerService;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
-import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.util.Collector;
-
-import java.sql.Timestamp;
 
 /**
  * 在source端，生成数据，并发送数据
  */
-public class SourceWaterMarker {
+public class SourceWaterMarkerHasMap {
     /**
      *
      * 滑动窗口 设置
@@ -137,16 +132,7 @@ public class SourceWaterMarker {
                 .returns(Person.class);
 
         source1
-                .process(new ProcessFunction<Person, Person>() {
-                    @Override
-                    public void processElement(Person value, Context ctx, Collector<Person> out) throws Exception {
-                        if("王五".equals(value.getName())){
-                            System.out.println("source:  "+ ctx.timestamp());
-                            System.out.println(value);
-                            out.collect(value);
-                        }
-                    }
-                })
+                .filter(person -> "王五".equals(person.getName()))
                 .keyBy(person-> person.getName())
 //                .timeWindowAll(Time.days(2))
                 .countWindow(5, 2)
