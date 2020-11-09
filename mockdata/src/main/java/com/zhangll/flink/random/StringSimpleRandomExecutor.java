@@ -46,6 +46,19 @@ public class StringSimpleRandomExecutor extends AbstractRandomExecutor {
         return new DefaultStringRule(fieldToken);
     }
 
+    @Override
+    protected String doHandleStep(FieldToken currentTokenInfo, FieldNode.StepState currentState) {
+        String[] value = currentTokenInfo.getValue();
+        if(value.length > 0){
+            int cutgap = currentState.getProgress() % value.length;
+            if(currentState.getStep()>0){
+                return value[cutgap];
+            }
+            return value[(value.length-1) + cutgap];
+        }
+        return null;
+    }
+
 
     /**
      * 属性值是字符串 String

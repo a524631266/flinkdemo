@@ -8,7 +8,9 @@ import com.zhangll.flink.parser.NodeParser;
 import com.zhangll.flink.random.ExecutorStore;
 import com.zhangll.flink.random.RandomType;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Map;
 
@@ -16,13 +18,13 @@ import java.util.Map;
  * 解析流程
  */
 public abstract class MockContext {
-    protected static MappingStore mappingStore = new MappingStore();
+    protected MappingStore mappingStore = new MappingStore();
     protected static NodeParser nodeParser = new NodeParser();
-    protected static ExecutorStore executorStore = new ExecutorStore();
+    protected ExecutorStore executorStore = new ExecutorStore();
 
     public  Object mock(Class<?> cClass) {
 
-        return this.mock(cClass, null);
+        return this.mock(cClass, null, null);
     }
 
     /**
@@ -31,12 +33,12 @@ public abstract class MockContext {
      * @param innerPojoTokens
      * @return
      */
-    private FieldNode initMappingStore(Class<?> cClass, Map<String, FieldToken> innerPojoTokens) {
+    private FieldNode initMappingStore(Class<?> cClass,Field ownField, Map<String, FieldToken> innerPojoTokens) {
         FieldNode root;
-//        if((root = mappingStore.getFieldNode(cClass, mappings))==null){
-        root = nodeParser.initNodeTree(cClass, null, innerPojoTokens);
-//            mappingStore.setNodeMap(cClass, mappings, root);
-//        }
+        if((root = mappingStore.getFieldNode(cClass ,ownField ))==null){
+            root = nodeParser.initNodeTree(cClass, null, innerPojoTokens);
+            mappingStore.setNodeMap(cClass, ownField, root);
+        }
         return root;
     }
 
@@ -50,10 +52,21 @@ public abstract class MockContext {
         Object resource = null;
         try {
 //            resource = root.getType().newInstance();
-            resource = cClass.newInstance();
+//            resource = cClass.newInstance();
+            // 一般使用默认的构造器构造方法
+            Constructor<?>[] declaredConstructors = cClass.getDeclaredConstructors();
+            for (Constructor<?> declaredConstructor : declaredConstructors) {
+                if(declaredConstructor.getParameterCount() == 0){
+                    declaredConstructor.setAccessible(true);
+                    resource = declaredConstructor.newInstance();
+                    break;
+                }
+            }
         } catch (InstantiationException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch ( InvocationTargetException e ) {
             e.printStackTrace();
         }
         if(resource == null){
@@ -87,13 +100,14 @@ public abstract class MockContext {
     /**
      * 一般为 mock对象
      * @param cClass
+     * @param ownField 当前所属域
      * @param pojoTokens
      * @return
      */
-    public Object mock(Class<?> cClass, Map<String, FieldToken> pojoTokens) {
+    public Object mock(Class<?> cClass, Field ownField ,Map<String, FieldToken> pojoTokens) {
         FieldNode root = null;
         // 暂时先不上mapping
-        root = initMappingStore(cClass, pojoTokens);
+        root = initMappingStore(cClass, ownField, pojoTokens);
         // 1. 创建一个对象,不过这个对象是
         Object resource = createObject(cClass, root);
         return doObjectBindField(resource, root);

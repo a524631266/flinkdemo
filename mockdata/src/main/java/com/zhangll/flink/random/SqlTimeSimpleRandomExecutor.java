@@ -1,14 +1,19 @@
 package com.zhangll.flink.random;
 
 import com.zhangll.flink.MockContext;
+import com.zhangll.flink.error.FieldIllegalArgumentException;
 import com.zhangll.flink.model.FieldNode;
 import com.zhangll.flink.model.FieldToken;
 import com.zhangll.flink.rule.Rule;
+import com.zhangll.flink.uitl.DateUtil;
 
 import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Random;
+import java.util.regex.Pattern;
 
 
 /**
@@ -16,6 +21,8 @@ import java.util.Random;
  * 生成逻辑与long相关
  */
 public class SqlTimeSimpleRandomExecutor extends AbstractRandomExecutor {
+
+
     public static Rule<Date> DATE = new DefaultDateRule(
             new FieldToken.FieldTokenBuilder()
                     .setMin(new Long(System.currentTimeMillis() / 1000 - 24 *60 *60).intValue())
@@ -41,7 +48,7 @@ public class SqlTimeSimpleRandomExecutor extends AbstractRandomExecutor {
     }
 
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws ParseException {
         long ti = 1603890014000L;
         //
         Date date = new Date(ti);
@@ -56,6 +63,7 @@ public class SqlTimeSimpleRandomExecutor extends AbstractRandomExecutor {
         System.out.println(new Long(System.currentTimeMillis() / 1000).intValue());
         int count = (int) (System.currentTimeMillis() / 1000);
         System.out.println(count);
+
 
     }
 
@@ -81,16 +89,110 @@ public class SqlTimeSimpleRandomExecutor extends AbstractRandomExecutor {
     @Override
     public Rule getRule(FieldToken fieldToken) {
         if(innerClass == Date.class){
-            if(fieldToken==null) return DATE;
+            if(fieldToken==null) {
+                return DATE;
+            }
             return new DefaultDateRule(fieldToken);
         }else if(innerClass == Time.class){
-            if(fieldToken==null) return TIME;
+            if(fieldToken==null) {
+                return TIME;
+            }
             return new DefaultDateRule(fieldToken);
         } else if (innerClass == Timestamp.class) {
-            if(fieldToken==null) return TIMESTAMP;
+            if(fieldToken==null) {
+                return TIMESTAMP;
+            }
             return new DefaultTimestampRule(fieldToken);
         }
         return null;
+    }
+
+    /**
+     *
+     * @param currentTokenInfo
+     * @param currentState
+     * @return Date Time Timestamp
+     */
+    @Override
+    protected Object doHandleStep(FieldToken currentTokenInfo, FieldNode.StepState currentState) {
+        long result = 0;
+
+        try {
+            result = handleSqlTimeStep(currentTokenInfo, currentState);
+        } catch ( ParseException e ) {
+            e.printStackTrace();
+            throw new IllegalArgumentException(currentState.toString());
+        }
+
+        if (innerClass == Date.class) {
+            return new Date(result);
+        } else if (innerClass == Time.class) {
+            return new Time( result );
+        } else if (innerClass == Timestamp.class) {
+            return new Timestamp(result);
+        }
+        return null;
+    }
+
+    /**
+     * 处理共性
+     * @param currentTokenInfo
+     * @param currentState
+     * @return
+     */
+    private long handleSqlTimeStep(FieldToken currentTokenInfo, FieldNode.StepState currentState) throws ParseException {
+        String[] value = currentTokenInfo.getValue();
+        // value优先级
+        if(value.length > 0){
+            int cutgap = currentState.getProgress() % value.length;
+            if(currentState.getStep()>0){
+                return DateUtil.getFormat(innerClass).parse(value[cutgap]).getTime();
+            }
+            return DateUtil.getFormat(innerClass).parse(value[(value.length-1) + cutgap]).getTime();
+        }else{
+            if(currentTokenInfo.getStep() !=  0){
+                long preTimeLong10 = 0;
+                if(currentState.getPreObject() == null){
+                    if(currentTokenInfo.getStep() >0 ){
+                        preTimeLong10 = Long.valueOf(currentTokenInfo.getMin()) * 1000;
+                    } else {
+                        preTimeLong10 = Long.valueOf(currentTokenInfo.getMax()) * 1000;
+                    }
+                } else {
+                    java.util.Date date = (java.util.Date) currentState.getPreObject();
+                    preTimeLong10 = verifyOutBound(date.getTime() + DateUtil.getBase(innerClass) * currentTokenInfo.getStep(),currentTokenInfo );
+
+                }
+                return preTimeLong10;
+            }
+        }
+        return 0;
+    }
+
+    /**
+     * bug 当 gap 很小，时候
+     * @param value
+     * @param currentTokenInfo
+     * @return
+     */
+    private long verifyOutBound(long value, FieldToken currentTokenInfo) {
+        if(value < (Long.valueOf(currentTokenInfo.getMin()) * 1000)){
+            long gap = Long.valueOf(currentTokenInfo.getMax() - currentTokenInfo.getMin()) * 1000;
+            long result = value + gap;
+            while (result < (Long.valueOf(currentTokenInfo.getMin()) * 1000)){
+                result += gap;
+            }
+            return result;
+        }
+        if(value > (Long.valueOf(currentTokenInfo.getMax()) * 1000)){
+            long gap = Long.valueOf(currentTokenInfo.getMax() - currentTokenInfo.getMin()) * 1000;
+            long result = value - gap;
+            while (result > (Long.valueOf(currentTokenInfo.getMax()) * 1000)){
+                result -= gap;
+            }
+            return  result;
+        }
+        return value;
     }
 
     protected static class DefaultDateRule implements Rule<Date> {

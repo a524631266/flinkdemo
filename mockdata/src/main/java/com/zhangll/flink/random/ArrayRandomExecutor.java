@@ -39,6 +39,12 @@ public class ArrayRandomExecutor<T> extends AbstractRandomExecutor {
         return new DefaultArrayRule(fieldToken);
     }
 
+    @Override
+    protected Object doHandleStep(FieldToken currentTokenInfo, FieldNode.StepState currentState) {
+        //TODO
+        return null;
+    }
+
     /**
      * 根据解析规则 name中的range进行匹配
      *
@@ -109,7 +115,7 @@ public class ArrayRandomExecutor<T> extends AbstractRandomExecutor {
                         o[i] = executor.getRule(fieldNodeContext.getInnerBasicTokens()).apply(mockContext, fieldNodeContext);
                     } else {
                         // componentType =  POJO Type
-                        o[i] = mockContext.mock(componentType, fieldNodeContext.getInnerPojoTokens());
+                        o[i] = mockContext.mock(componentType, fieldNodeContext.getDeclaredField(), fieldNodeContext.getInnerPojoTokens());
 //                        fieldNodeContext.assignInnerObject(o[i], mockContext);
 //                        o[i] = mockContext.mockWithContext(componentType, fieldNodeContext);
                     }

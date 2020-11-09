@@ -6,7 +6,9 @@ import com.zhangll.flink.random.RandomExecutorFactory;
 import com.zhangll.flink.random.RandomType;
 import com.zhangll.flink.rule.Rule;
 import com.zhangll.flink.type.BasicType;
+import lombok.Getter;
 import lombok.SneakyThrows;
+import lombok.ToString;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
@@ -24,12 +26,16 @@ public class FieldNode implements ASTNode{
     final Class currentClass;
     final boolean isInnerType;
     private final RandomType executor;
-    private Map<String, FieldToken> fieldTokens = new HashMap<>();
-    // 默认为null
+//    private Map<String, FieldToken> fieldTokens = new HashMap<>();
+    /**
+     * 默认为null
+      */
     ASTNode parent;
     private final  Field declaredField;
     final List<ASTNode> children = new ArrayList<>();
-    // 当前节点的fieldToken, 一般为节点当前设置的FieldTokenInfo内容
+    /**
+     * 当前节点的fieldToken, 一般为节点当前设置的FieldTokenInfo内容
+      */
     final private FieldToken currentTokenInfo;
     // 当前节点的 或者容器内部的
     private Map<String, FieldToken> innerPojoTokens = new HashMap<>(1);
@@ -40,6 +46,7 @@ public class FieldNode implements ASTNode{
     // 泛型参数实际类型
     private Type[] actualTypeArguments;
 
+    public final StepState stepState;
 
     public Class getComponentType() {
         return componentType;
@@ -76,12 +83,13 @@ public class FieldNode implements ASTNode{
         this.declaredField = field;
         this.currentTokenInfo = currentTokenInfo;
 
-        if(fieldTokens!=null){
-            this.fieldTokens = fieldTokens;
-        }
         this.innerPojoTokens = innerPojoTokens;
         this.innerBasicTokens = innerBasicTokens;
-    
+        if(currentTokenInfo == null){
+            this.stepState = new StepState(0, 0);
+        }else{
+            this.stepState = new StepState(0, currentTokenInfo.getStep());
+        }
     }
 
 
@@ -100,9 +108,6 @@ public class FieldNode implements ASTNode{
         return currentClass;
     }
 
-    public RandomType getExecutor() {
-        return executor;
-    }
 
     public Rule getRule(){
         return executor.getRule(currentTokenInfo);
@@ -202,5 +207,35 @@ public class FieldNode implements ASTNode{
     }
     public Map<String, FieldToken> getInnerPojoTokens() {
         return innerPojoTokens;
+    }
+
+    public void updateStepState(Object object) {
+        stepState.updateState(object);
+    }
+
+    public StepState getCurrrentStepState(){
+        return stepState;
+    }
+    @Getter
+    @ToString
+    public class StepState {
+        // 进度
+        private int progress = 0;
+        private int step = 0;
+        private Object preObject;
+
+        public StepState(int progress, int step) {
+            this.progress = progress;
+            this.step = step;
+        }
+
+        protected void updateState(Object object) {
+            this.preObject = object;
+            if(object == null) {
+                return;
+            }
+            // 每次刷新都会更新一下进度，进度为 默认+2操作
+            progress += step;
+        }
     }
 }
