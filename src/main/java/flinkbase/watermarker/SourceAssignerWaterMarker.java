@@ -45,9 +45,9 @@ public class SourceAssignerWaterMarker {
                 .returns(Person.class);
         WatermarkGenerator waterMarketAssigner = new BoundedOutOfOrdernessGenerator2();
         source1
-                .filter(person -> {
-                    return "王五".equals(person.getName());
-                })
+//                .filter(person -> {
+//                    return "王五".equals(person.getName());
+//                })
                 .assignTimestampsAndWatermarks(new BoundedOutOfOrdernessGenerator())
                 .keyBy(person -> person.getName())
                 .timeWindow(Time.days(2))

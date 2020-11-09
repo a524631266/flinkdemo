@@ -18,7 +18,7 @@ public class Person{
     int age;
 //    @BasicTokenInfo(value = {"张三", "李四" ,"王五" , "赵六"} ,step = "3")
 //    String name;
-    @BasicTokenInfo(value = {"王五"})
+    @BasicTokenInfo(value = {"王五", "李四"})
     String name;
 
     Address address;
