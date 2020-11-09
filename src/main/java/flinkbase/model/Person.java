@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import java.sql.Date;
 import java.sql.Timestamp;
 
 @Data
@@ -18,7 +19,7 @@ public class Person{
     @BasicTokenInfo(value = {"张三", "李四" ,"王五" , "赵六"})
     String name;
     Address address;
-    @BasicTokenInfo(min = "1", max = "30")
-    Timestamp birthDay;
+    @BasicTokenInfo(min = "2019-01-01", max = "2019-12-01")
+    Date birthDay;
 }
 

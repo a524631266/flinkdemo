@@ -10,6 +10,8 @@ import org.apache.flink.streaming.api.functions.source.RichSourceFunction;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
 import org.mockito.Mockito;
 
+import java.lang.reflect.Field;
+import java.util.Date;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -43,24 +45,27 @@ public class SourceUtil {
     /**
      * 产生随机的对象的source
      * @param sourceClass
+     * @param waterMarkerTimeField  水印时间birthDay字段名称
      * @param <T>
      * @return
      */
-    public static <T> SourceFunction<T> createStreamSourceWithWatherMark(Class<T> sourceClass){
+    public static <T> SourceFunction<T> createStreamSourceWithWatherMark(Class<T> sourceClass,String waterMarkerTimeField ){
         return new RichSourceFunction<T>() {
 
             private boolean running = true;
             @Override
             public void run(SourceContext<T> ctx) throws Exception {
                 AnnotationMockContext annotationMockContext = new AnnotationMockContext();
+                Field field = sourceClass.getDeclaredField(waterMarkerTimeField);
+                field.setAccessible(true);
                 while (running){
                     Object mock = annotationMockContext.mock(sourceClass);
                     if(mock instanceof Person){
-                        ctx.collectWithTimestamp((T) mock, ((Person) mock).getBirthDay().getTime());
+                        Date o = (Date)field.get(mock);
+                        ctx.collectWithTimestamp((T) mock, o.getTime());
                     } else{
                         ctx.collect((T) mock);
                     }
-//                    System.out.println(person);
                     TimeUnit.SECONDS.sleep(1);
 
                 }

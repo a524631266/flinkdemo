@@ -3,27 +3,17 @@ package flinkbase.watermarker;
 import flinkbase.model.Person;
 import flinkbase.utils.EnvUtil;
 import flinkbase.utils.SourceUtil;
-import org.apache.flink.api.common.ExecutionConfig;
-import org.apache.flink.api.common.eventtime.WatermarkGenerator;
-import org.apache.flink.api.common.eventtime.WatermarkGeneratorSupplier;
-import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.TimerService;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.functions.AssignerWithPeriodicWatermarks;
 import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
-import org.apache.flink.streaming.api.functions.timestamps.BoundedOutOfOrdernessTimestampExtractor;
-import org.apache.flink.streaming.api.functions.windowing.WindowFunction;
-import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
-import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
 
 import java.sql.Timestamp;
-import java.util.Iterator;
 
 /**
  * 在理解水印之前需要： 触发window计算的依据与 划分窗口区间的依据
@@ -42,7 +32,7 @@ import java.util.Iterator;
  *
  * 二、
  */
-public class WaterMarkerSourceDemo {
+public class SourceWaterMarker {
     public static void main(String[] args) throws Exception {
         StreamExecutionEnvironment env = EnvUtil.getLocalWebEnv();
         // 这里，如果使用的是EventTime（或者source中自动分配了时间策略），失效，如果是processing Time是会
@@ -50,50 +40,23 @@ public class WaterMarkerSourceDemo {
         env.setParallelism(1);
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
 //        env.setStreamTimeCharacteristic(TimeCharacteristic.IngestionTime);
-        SourceFunction<Person> source = SourceUtil.createStreamSource(Person.class);
+        SourceFunction<Person> source = SourceUtil.createStreamSourceWithWatherMark(Person.class ,"birthDay");
         SingleOutputStreamOperator<Person> source1 = env.addSource(source)
                 .returns(Person.class);
 
         source1
-                .keyBy(person -> {
-                    return person.getName();
-                })
-//                .assignTimestampsAndWatermarks(new BoundedOutOfOrdernessTimestampExtractor<Person>(Time.seconds(3)) {
-//                    @Override
-//                    public long extractTimestamp(Person element) {
-//                        System.out.println("111111111");
-//                        System.out.println(getCurrentWatermark().getTimestamp());
-//                        return element.getBirthDay().getTime();
-//                    }
-//                })
                 .process(new ProcessFunction<Person, Person>() {
                     @Override
                     public void processElement(Person value, Context ctx, Collector<Person> out) throws Exception {
                         System.out.println("source:  "+ ctx.timestamp());
-
-//                        out.collect(value);
-
+                        out.collect(value);
                     }
                 })
                 .keyBy(person-> person.getName())
-//                .window(TumblingEventTimeWindows.of(Time.seconds(5)))
-//                .allowedLateness(Time.seconds(2L))
-//                .apply(new WindowFunction<Person, Object, String, TimeWindow>() {
-//                    @Override
-//                    public void apply(String s, TimeWindow window, Iterable<Person> input, Collector<Object> out) throws Exception {
-//                        System.out.println(s);
-//                        // 获取数据中的实际按
-//                        Iterator<Person> iterator = input.iterator();
-//                        while (iterator.hasNext()) {
-//                            Person next = iterator.next();
-//                            System.out.println(next);
-//                        }
-//                    }
-//                })
                 .process(new KeyedProcessFunction<String, Person, Object>() {
                     @Override
                     public void processElement(Person value, Context ctx, Collector<Object> out) throws Exception {
-                        System.out.println(value);
+                        System.out.println("实际处理时间: " + value);
                         // 获取数据中的实际按
                         Long timestamp = ctx.timestamp();
                         String currentKey = ctx.getCurrentKey();
