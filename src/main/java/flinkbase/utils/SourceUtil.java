@@ -8,6 +8,7 @@ import flinkbase.typeinfo.example.protocol.ProtoColType;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.source.RichSourceFunction;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
+import org.apache.flink.streaming.api.watermark.Watermark;
 import org.mockito.Mockito;
 
 import java.lang.reflect.Field;
@@ -31,7 +32,9 @@ public class SourceUtil {
                 while (running){
                     Object mock = annotationMockContext.mock(sourceClass);
 //                    System.out.println(person);
-                    TimeUnit.SECONDS.sleep(1);
+//                    TimeUnit.SECONDS.sleep(1);
+                    TimeUnit.MILLISECONDS.sleep(100);
+                    System.out.println(mock);
                     ctx.collect((T) mock);
                 }
             }
@@ -63,6 +66,7 @@ public class SourceUtil {
                     if(mock instanceof Person){
                         Date o = (Date)field.get(mock);
                         ctx.collectWithTimestamp((T) mock, o.getTime());
+                        ctx.emitWatermark(new Watermark(o.getTime()));
                     } else{
                         ctx.collect((T) mock);
                     }
