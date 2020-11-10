@@ -33,7 +33,7 @@ public class SourceUtil {
                     Object mock = annotationMockContext.mock(sourceClass);
 //                    System.out.println(person);
 //                    TimeUnit.SECONDS.sleep(1);
-                    TimeUnit.MILLISECONDS.sleep(100);
+                    TimeUnit.MILLISECONDS.sleep(500);
                     System.out.println(mock);
                     ctx.collect((T) mock);
                 }
