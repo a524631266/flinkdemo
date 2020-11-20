@@ -1,6 +1,7 @@
 package flinkbase.utils;
 
-import com.zhangll.flink.AnnotationMockContext;
+
+import com.zhangll.jmock.core.AnnotationMockContext;
 import flinkbase.model.Address;
 import flinkbase.model.Person;
 import flinkbase.model.SubPerson;

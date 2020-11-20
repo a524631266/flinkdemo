@@ -1,10 +1,10 @@
 package flinkbase.windows;
 
-import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
-import com.zhangll.flink.annotation.BasicTokenInfo;
+
+
 import flinkbase.utils.EnvUtil;
 import flinkbase.utils.SourceUtil;
-import lombok.Getter;
+
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;

@@ -1,6 +1,7 @@
 package flinkbase.windows;
 
-import com.zhangll.flink.annotation.BasicTokenInfo;
+
+import com.zhangll.jmock.core.annotation.BasicTokenInfo;
 import lombok.Getter;
 
 import java.sql.Timestamp;
