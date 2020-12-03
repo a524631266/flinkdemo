@@ -48,7 +48,7 @@ public class MySqlCDCStarter implements SourceFuncGenerator{
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         RestartStrategyUtil.setRestartStrategy(env);
 //        EnvUtil.setCheckpoint(env , CheckPoint);
-        EnvUtil.setCheckpointWithHDFS(env);
+        EnvUtil.setCheckpointWithHDFS(env, "hdfs://192.168.10.61:8020/flink/checkpoint/organization");
         DataStreamSource<Organization> source = env.addSource(new MySqlCDCStarter().generate());
         source.print().setParallelism(1);
         env.execute("consume orginaztion");

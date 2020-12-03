@@ -14,10 +14,13 @@ import java.sql.Timestamp;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class Person{
-    @BasicTokenInfo(min = "0" , max = "100", step = "1")
+public class Person {
+    @BasicTokenInfo(min = "1", max = "1000000000", step = "1")
+    int id;
+
+    @BasicTokenInfo(min = "0", max = "100", step = "1")
     int age;
-//    @BasicTokenInfo(value = {"张三", "李四" ,"王五" , "赵六"} ,step = "3")
+    //    @BasicTokenInfo(value = {"张三", "李四" ,"王五" , "赵六"} ,step = "3")
 //    String name;
     @BasicTokenInfo(value = {"王五", "李四"})
     String name;

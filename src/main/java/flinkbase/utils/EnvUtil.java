@@ -71,7 +71,12 @@ public class EnvUtil {
 //        return null;
     }
 
-    public static void setCheckpointWithHDFS(StreamExecutionEnvironment env) {
+    /**
+     *
+     * @param env
+     * @param hdfsPath "hdfs://192.168.10.61:8020/flink/checkpoint/organization"
+     */
+    public static void setCheckpointWithHDFS(StreamExecutionEnvironment env, String hdfsPath) {
         CheckpointConfig config = env.getCheckpointConfig();
 
         config.enableExternalizedCheckpoints(CheckpointConfig.ExternalizedCheckpointCleanup.RETAIN_ON_CANCELLATION);
@@ -84,7 +89,12 @@ public class EnvUtil {
         // 同一时间只允许进行一次checkpoint
         config.setMaxConcurrentCheckpoints(1);
         // checkpiont 一般默认会把状态存储下来
-        env.setStateBackend(new FsStateBackend("hdfs://192.168.10.61:8020/flink/checkpoint/organization"));
+        env.setStateBackend(new FsStateBackend(hdfsPath));
+    }
+
+    public static StreamExecutionEnvironment getLocalEnv() {
+        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        return env;
     }
 }
 

@@ -3,17 +3,26 @@ package flinkbase.utils;
 
 import com.zhangll.jmock.core.AnnotationMockContext;
 import flinkbase.model.Address;
+import flinkbase.model.OrderForAllWindow;
 import flinkbase.model.Person;
 import flinkbase.model.SubPerson;
 import flinkbase.typeinfo.example.protocol.ProtoColType;
+import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.configuration.Configuration;
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.source.RichSourceFunction;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
 import org.apache.flink.streaming.api.watermark.Watermark;
+import org.apache.flink.streaming.api.windowing.time.Time;
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer011;
+import org.apache.flink.streaming.connectors.kafka.internals.KafkaTopicPartition;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.mockito.Mockito;
 
 import java.lang.reflect.Field;
+import java.sql.Timestamp;
 import java.util.Date;
+import java.util.Properties;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -25,6 +34,10 @@ public class SourceUtil {
      * @return
      */
     public static <T> SourceFunction<T> createStreamSource(Class<T> sourceClass){
+        return getSourceFunction(sourceClass, 500L);
+    }
+
+    private static <T> SourceFunction<T> getSourceFunction(Class<T> sourceClass, long milsecond) {
         return new SourceFunction<T>() {
             private boolean running = true;
             @Override
@@ -34,7 +47,7 @@ public class SourceUtil {
                     Object mock = annotationMockContext.mock(sourceClass);
 //                    System.out.println(person);
 //                    TimeUnit.SECONDS.sleep(1);
-                    TimeUnit.MILLISECONDS.sleep(500);
+                    TimeUnit.MILLISECONDS.sleep(milsecond);
                     System.out.println(mock);
                     ctx.collect((T) mock);
                 }
@@ -46,6 +59,9 @@ public class SourceUtil {
         };
     }
 
+    public static <T> SourceFunction<T> createStreamSource(Class<T> sourceClass, Long milsecond) {
+        return getSourceFunction(sourceClass, milsecond);
+    }
     /**
      * 产生随机的对象的source
      * @param sourceClass
@@ -63,7 +79,7 @@ public class SourceUtil {
                 Field field = sourceClass.getDeclaredField(waterMarkerTimeField);
                 field.setAccessible(true);
                 while (running){
-                    Object mock = annotationMockContext.mock(sourceClass);
+                    T mock = annotationMockContext.mock(sourceClass);
                     if(mock instanceof Person){
                         Date o = (Date)field.get(mock);
                         ctx.collectWithTimestamp((T) mock, o.getTime());
@@ -72,7 +88,7 @@ public class SourceUtil {
                         ctx.collect((T) mock);
                     }
 
-                    TimeUnit.MILLISECONDS.sleep(50);
+                    TimeUnit.MILLISECONDS.sleep(1);
 
                 }
             }
@@ -83,7 +99,55 @@ public class SourceUtil {
         };
     }
 
+    /**
+     * 产生随机的对象的source
+     *
+     * @param <T>
+     * @param sourceClass
+     * @param waterMarkerTimeField 水印时间birthDay字段名称
+     * @param emitFreq             发送频率 （s为单位）
+     * @return
+     */
+    public static <T> SourceFunction<T> createSourceStreamWithWatherMark(Class<T> sourceClass, String waterMarkerTimeField, Time emitFreq) {
+        long emitFreqMs = emitFreq.toMilliseconds();
+        return new RichSourceFunction<T>() {
+            private AnnotationMockContext mockContext;
 
+            @Override
+            public void open(Configuration parameters) throws Exception {
+                super.open(parameters);
+                mockContext = new AnnotationMockContext();
+            }
+
+            private boolean running = true;
+
+            @Override
+            public void run(SourceContext<T> ctx) throws NoSuchFieldException, IllegalAccessException {
+
+                Field field = sourceClass.getDeclaredField(waterMarkerTimeField);
+                field.setAccessible(true);
+                while (running) {
+                    System.out.println("aaa");
+                    T mock = mockContext.mock(sourceClass);
+                    System.out.println("bb");
+                    Timestamp o = (Timestamp) field.get(mock);
+                    ctx.collectWithTimestamp((T) mock, o.getTime());
+//                    ctx.emitWatermark(new Watermark(o.getTime()));
+                    System.out.println(emitFreqMs);
+                    try{
+                        TimeUnit.MILLISECONDS.sleep(emitFreqMs);
+                    }catch (InterruptedException e ){
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            @Override
+            public void cancel() {
+                running = false;
+            }
+        };
+    }
     /**
      * 产生随机的对象的source
      * @param sourceClass
@@ -196,5 +260,9 @@ public class SourceUtil {
                 running = false;
             }
         };
+    }
+
+    public void kafkaSource(){
+
     }
 }
