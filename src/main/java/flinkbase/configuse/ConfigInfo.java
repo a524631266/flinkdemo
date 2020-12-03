@@ -1,13 +1,19 @@
 package flinkbase.configuse;
 
+import com.mysql.cj.jdbc.MysqlDataSource;
 import flinkbase.utils.EnvUtil;
 import flinkbase.utils.PrintUtil;
 import org.apache.flink.api.common.ExecutionConfig;
+import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
 import org.apache.flink.configuration.Configuration;
+import org.apache.flink.core.execution.JobListener;
 import org.apache.flink.streaming.api.environment.CheckpointConfig;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+
+import java.util.List;
+import java.util.Map;
 
 public class ConfigInfo {
     public static void main(String[] args) {
@@ -17,9 +23,12 @@ public class ConfigInfo {
         System.out.println("#####################");
         CheckpointConfig checkpointConfig = env.getCheckpointConfig();
         showCheckpointDefaultInfo(checkpointConfig);
-
         System.out.println("##########轻量级 配置对象###########");
         // 轻量级 配置对象 . 配置全局变量，在计算逻辑的其他部分能够用到
+        // 轻量级配置对象可以用于environment作为全局的配置
+        // 也可以用于executionConfig的全局配置
+        // Environment <>-- Configuration
+        // ExecutionConfig <>-- Configuration
         showGloablParameters(config);
     }
 
@@ -30,8 +39,12 @@ public class ConfigInfo {
     private static void showGloablParameters(ExecutionConfig config) {
         Configuration lightConfig = new Configuration();
         lightConfig.set(ConfigOptions.key("asdf").intType().noDefaultValue(), 123);
+
+        lightConfig.setClass("mysql", MysqlDataSource.class);
         config.setGlobalJobParameters(lightConfig);
         ExecutionConfig.GlobalJobParameters globalJobParameters = config.getGlobalJobParameters();
+        Map<String, String> stringStringMap = globalJobParameters.toMap();
+
         PrintUtil.printObjectFields(globalJobParameters);
     }
 
