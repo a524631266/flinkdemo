@@ -77,7 +77,9 @@ public class HDFSSink {
                         // 185337,李四,1,2019-10-28,骨望就
                         // 在这个应用中，如果以事件时间作为桶名称，就要扩展这个功能！
                         System.out.println("element:"+ element);
-                        return "abc";
+
+                        // ******细节开发， 以 / 为目录可以有两级目录
+                        return "name=" +  element.split(",")[1] +"/age=" +  element.split(",")[2];
                     }
                 })
                 .withRollingPolicy(
@@ -99,10 +101,18 @@ public class HDFSSink {
     /**
      * 详解篇
      * 1. 这个程序在重新跑的过程中会新增数据分区，保证程序在后续启动可以继续添加
-     *
+     *      withBucketAssigner 来分区，自定义分区（分桶）
+     *      ** 细节开发， 以 / 为目录可以定义两级目录
      * 2. 速度可以多快？
      * 保证的数据不会出现挂了！！
+     *  1. 根据实战和理论结合，目前以 withMaxPartSize 保证存储在应用中，一旦超过就直接写入磁盘（以128m为块单位的hdfs）
+     *  2. 通过反压保证source源消费变慢，这个保证的依据在哪里？
+     * 3. 策略问题
+     *  1. 默认rolling策略
+     *  2. checkpointRollingPolicy，就是以checkpiont的频率为单位存储数据！！！这个使用最为简单。
+     *       OnCheckpointRollingPolicy.build()
      *
-     *
+     * 4 part file 的生命周期
+     *     part file我中文翻译为 分区文件。
      */
 }
