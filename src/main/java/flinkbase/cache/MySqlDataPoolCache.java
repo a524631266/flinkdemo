@@ -96,6 +96,7 @@ public class MySqlDataPoolCache {
                     }
                     // 使用线程池最重要的是要close，否则其他线程找不到线程！！
                     connection.close();
+                    cache.put(entity1.getEntity(), entity1);
                     return entity1;
                 }else {
                     return ifPresent;
