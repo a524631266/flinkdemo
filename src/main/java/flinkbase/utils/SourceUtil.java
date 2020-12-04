@@ -48,7 +48,7 @@ public class SourceUtil {
 //                    System.out.println(person);
 //                    TimeUnit.SECONDS.sleep(1);
                     TimeUnit.MILLISECONDS.sleep(milsecond);
-                    System.out.println(mock);
+                    System.out.println("generate data: "+ mock);
                     ctx.collect((T) mock);
                 }
             }
