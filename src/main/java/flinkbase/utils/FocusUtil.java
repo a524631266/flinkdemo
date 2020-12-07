@@ -17,6 +17,17 @@ public class FocusUtil {
         return returns;
     }
 
+
+    public static<T> SingleOutputStreamOperator<T> generateEnableSourceStream(Class<T> tClass, long generateRateMilSecond, String hdfsPath, String label){
+        env = EnvUtil.getLocalWebEnv();
+        env.registerCachedFile(hdfsPath, label);
+        // 添加source
+        SourceFunction<T> source = SourceUtil.createStreamSource(tClass, generateRateMilSecond);
+
+        SingleOutputStreamOperator<T> returns = env.addSource(source).returns(tClass);
+        return returns;
+    }
+
     public static void execute(String jobName){
         try {
             env.execute(jobName);
