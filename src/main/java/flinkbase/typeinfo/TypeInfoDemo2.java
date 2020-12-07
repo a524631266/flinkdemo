@@ -1,7 +1,7 @@
 package flinkbase.typeinfo;
 
 import flinkbase.model.Person;
-import flinkbase.typeinfo.model.PersonMessage;
+//import flinkbase.typeinfo.model.PersonMessage;
 
 import org.apache.flink.api.common.typeinfo.BasicTypeInfo;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -58,8 +58,8 @@ public class TypeInfoDemo2 {
         TypeInformation<? extends Person> person_cglib = TypeInformation.of(Mockito.mock(Person.class).getClass());
         System.out.println(person_cglib);
         // protobuf类型
-        TypeInformation<PersonMessage.PersonModel> personMessage = TypeInformation.of(PersonMessage.PersonModel.class);
-        System.out.println(personMessage);
+//        TypeInformation<PersonMessage.PersonModel> personMessage = TypeInformation.of(PersonMessage.PersonModel.class);
+//        System.out.println(personMessage);
         // 无参构造函数是私有的,即使有public类型的有参构造
 //        TypeInformation<PersonModel> personModel = TypeInformation.of(PersonModel.class);
 //        System.out.println(personModel);

@@ -33,9 +33,23 @@ under the License.
 	<!--</modules>-->
 	<repositories>
 		<repository>
+			<id>mvn</id>
+			<url>http://rep1.mavne.org/maven2/</url>
+		</repository>
+
+
+		<repository>
+			<id>cloudera</id>
+			<name>cloudera</name>
+			<url>https://repository.cloudera.com/libs-release-local</url>
+			<!--			<url>https://repository.cloudera.com/content/repositories/releases/</url>-->
+		</repository>
+
+		<repository>
 			<id>aliyun</id>
 			<url>http://maven.aliyun.com/nexus/content/groups/public/</url>
 		</repository>
+
 		<repository>
 			<id>apache.snapshots</id>
 			<name>Apache Development Snapshot Repository</name>
@@ -184,16 +198,7 @@ under the License.
 			<type>jar</type>
             <!--<scope>test</scope>-->
         </dependency>
-		<dependency>
-			<groupId>com.google.protobuf</groupId>
-			<artifactId>protobuf-java-util</artifactId>
-			<version>3.11.4</version>
-		</dependency>
-        <dependency>
-            <groupId>com.google.protobuf</groupId>
-            <artifactId>protobuf-java</artifactId>
-            <version>3.11.4</version>
-        </dependency>
+
 
 
 <!--使用 cdc 依赖文件-->
@@ -241,6 +246,69 @@ under the License.
             <artifactId>c3p0</artifactId>
             <version>0.9.1.2</version>
         </dependency>
+
+
+		<dependency>
+			<groupId>org.hbase</groupId>
+			<artifactId>asynchbase</artifactId>
+			<version>1.8.2</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>protobuf-java</artifactId>
+					<groupId>com.google.protobuf</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+
+
+		<!--hbase 异步客户端需要引入的其他包依赖-->
+		<!--<dependency>-->
+			<!--<groupId>org.apache.hbase</groupId>-->
+			<!--<artifactId>hbase-client</artifactId>-->
+			<!--<version>1.2.0-cdh5.9.0</version>-->
+			<!--<exclusions>-->
+				<!--<exclusion>-->
+					<!--<artifactId>guava</artifactId>-->
+					<!--<groupId>com.google.guava</groupId>-->
+				<!--</exclusion>-->
+			<!--</exclusions>-->
+			<!--<exclusions>-->
+				<!--<exclusion>jackson</exclusion>-->
+			<!--</exclusions>-->
+		<!--</dependency>-->
+		<!--<dependency>-->
+			<!--<groupId>org.apache.hbase</groupId>-->
+			<!--<artifactId>hbase-common</artifactId>-->
+			<!--<version>1.2.0-cdh5.9.0</version>-->
+			<!--<exclusions>-->
+				<!--<exclusion>-->
+					<!--<artifactId>guava</artifactId>-->
+					<!--<groupId>com.google.guava</groupId>-->
+				<!--</exclusion>-->
+			<!--</exclusions>-->
+		<!--</dependency>-->
+		<!--<dependency>-->
+			<!--<groupId>com.google.guava</groupId>-->
+			<!--<artifactId>guava</artifactId>-->
+			<!--<version>18.0</version>-->
+		<!--</dependency>-->
+		<dependency>
+			<groupId>org.apache.hbase</groupId>
+			<artifactId>hbase-protocol</artifactId>
+			<version>1.2.0-cdh5.9.0</version>
+		</dependency>
+
+		<!--<dependency>-->
+			<!--<groupId>com.google.protobuf</groupId>-->
+			<!--<artifactId>protobuf-java-util</artifactId>-->
+			<!--<version>2.5.0</version>-->
+		<!--</dependency>-->
+		<!--<dependency>-->
+			<!--<groupId>com.google.protobuf</groupId>-->
+			<!--<artifactId>protobuf-java</artifactId>-->
+			<!--<version>2.5.0</version>-->
+		<!--</dependency>-->
     </dependencies>
 
 	<build>
