@@ -108,7 +108,7 @@ public class AsyncHbaseCache {
         // 异步流是否用方法,需要等待无序还是有序？
         // 有序代表watermark水印保证数据的有序性。（根据应用场景来判断下游需要有序，还是无序的数据作为依据）
         SingleOutputStreamOperator<Entity> map = AsyncDataStream.
-                unorderedWait(sourceStream, richAsyncFunction, 1000, TimeUnit.SECONDS);
+                orderedWait(sourceStream, richAsyncFunction, 1, TimeUnit.SECONDS,3);
         map.printToErr();
         FocusUtil.execute(AsyncHbaseCache.class.getName());
     }
