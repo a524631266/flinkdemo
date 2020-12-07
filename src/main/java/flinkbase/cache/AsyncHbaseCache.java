@@ -11,6 +11,7 @@ import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.streaming.api.functions.async.RichAsyncFunction;
+import org.apache.flink.streaming.api.operators.async.AsyncWaitOperator;
 import org.hbase.async.GetRequest;
 import org.hbase.async.HBaseClient;
 import org.hbase.async.KeyValue;
@@ -26,6 +27,7 @@ import java.util.concurrent.TimeUnit;
  * 异步流 查看
  * @apiNote  https://cwiki.apache.org/confluence/pages/viewpage.action?pageId=65870673
  *
+ * @see AsyncWaitOperator
  */
 public class AsyncHbaseCache {
 //    @ToString
@@ -36,7 +38,9 @@ public class AsyncHbaseCache {
 //        String parentId;
 //    }
     public static void main(String[] args) {
-        SingleOutputStreamOperator<Entity> sourceStream = FocusUtil.generateEnableSourceStream(Entity.class, 500L);
+        // 在一毫秒的时候，会大量获取到数据
+        SingleOutputStreamOperator<Entity> sourceStream = FocusUtil.generateEnableSourceStream(
+                Entity.class, 1L);
         RichAsyncFunction<Entity, Entity> richAsyncFunction = new RichAsyncFunction<Entity, Entity>() {
 
             private HBaseClient hBaseClient;
@@ -56,8 +60,8 @@ public class AsyncHbaseCache {
 //                quorum: 192.168.10.61
 //                property:
 //                clientPort: 2181
-                hBaseClient = new HBaseClient("192.168.10.61,192.168.10.63,192.168.10.65,192.168.10.67,192.168.10.69",
-                        "/home/zk/data");
+                hBaseClient = new HBaseClient("192.168.10.61:2181,192.168.10.63:2181,192.168.10.65:2181,192.168.10.67:2181,192.168.10.69:2181",
+                        "/hbase");
             }
 
             @Override
@@ -78,7 +82,7 @@ public class AsyncHbaseCache {
 
                 Deferred<ArrayList<ArrayList<KeyValue>>> arrays = entityScanner.nextRows();
                 arrays.addCallback(cb ->{
-                    System.out.println(cb);
+                    System.out.println("获取到！！！" + cb);
                     return null;
                 });
 
@@ -105,7 +109,7 @@ public class AsyncHbaseCache {
         // 有序代表watermark水印保证数据的有序性。（根据应用场景来判断下游需要有序，还是无序的数据作为依据）
         SingleOutputStreamOperator<Entity> map = AsyncDataStream.
                 unorderedWait(sourceStream, richAsyncFunction, 1000, TimeUnit.SECONDS);
-        map.print();
+        map.printToErr();
         FocusUtil.execute(AsyncHbaseCache.class.getName());
     }
 
