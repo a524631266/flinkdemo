@@ -185,13 +185,14 @@ public class MySqlCDCStarter implements SourceFuncGenerator{
 
         /**
          * 当流进行快照备份的时候，需要设计一个值
-         *
+         * 因此需要清空，然后再添加，这样能够保证被
          * @param context
          * @throws Exception
          */
         @Override
         public void snapshotState(FunctionSnapshotContext context) throws Exception {
             LOG.info(Utils.getCallLocationName() + "=====snapshotState " + ++count);
+            unionState.clear();
             unionState.add(lastOffset);
         }
     }
