@@ -30,6 +30,8 @@ import org.apache.flink.util.StringUtils;
  *
  *
  * 消除疑惑，operate/key都是 基于task（相当于一个slot运行的function实例）
+ *
+ * 2个并行度1.
  */
 public class StateStoreIntoCheckpoint {
     static MapStateDescriptor<String, String> stateDesc = new MapStateDescriptor<String, String>("test",
@@ -67,6 +69,15 @@ public class StateStoreIntoCheckpoint {
             System.out.println(Iterables.size(mapState.values()));
             listState.add((long) value.getAge());
             System.out.println("####################");
+            // #########并行task1###########
+            //1111111:2
+            //1111111:5
+            // ########并行task2############
+            //1111111:0
+            //1111111:1
+            //1111111:3
+            //1111111:4
+            //1111111:6
             for (Long aLong : listState.get()) {
                 System.out.println("1111111:" + aLong);
             }
