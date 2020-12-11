@@ -6,16 +6,14 @@ import com.stumbleupon.async.Deferred;
 import flinkbase.model.Entity;
 import flinkbase.utils.FocusUtil;
 import org.apache.flink.configuration.Configuration;
+import org.apache.flink.metrics.MetricGroup;
 import org.apache.flink.streaming.api.datastream.AsyncDataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.streaming.api.functions.async.RichAsyncFunction;
 import org.apache.flink.streaming.api.operators.async.AsyncWaitOperator;
-import org.hbase.async.GetRequest;
-import org.hbase.async.HBaseClient;
-import org.hbase.async.KeyValue;
-import org.hbase.async.Scanner;
+import org.hbase.async.*;
 
 //import java.util.Collections;
 import java.util.ArrayList;
@@ -40,7 +38,7 @@ public class AsyncHbaseCache {
     public static void main(String[] args) {
         // 在一毫秒的时候，会大量获取到数据
         SingleOutputStreamOperator<Entity> sourceStream = FocusUtil.generateEnableSourceStream(
-                Entity.class, 1L);
+                Entity.class, 1);
         RichAsyncFunction<Entity, Entity> richAsyncFunction = new RichAsyncFunction<Entity, Entity>() {
 
             private HBaseClient hBaseClient;
@@ -62,6 +60,11 @@ public class AsyncHbaseCache {
 //                clientPort: 2181
                 hBaseClient = new HBaseClient("192.168.10.61:2181,192.168.10.63:2181,192.168.10.65:2181,192.168.10.67:2181,192.168.10.69:2181",
                         "/hbase");
+
+                MetricGroup hbase =
+                        getRuntimeContext().getMetricGroup().addGroup("hbase");
+                getRuntimeContext().getMetricGroup();
+
             }
 
             @Override
@@ -82,7 +85,24 @@ public class AsyncHbaseCache {
 
                 Deferred<ArrayList<ArrayList<KeyValue>>> arrays = entityScanner.nextRows();
                 arrays.addCallback(cb ->{
-                    System.out.println("获取到！！！" + cb);
+                    if(!cb.isEmpty()){
+//                        System.out.println("获取到！！！" + cb);
+//                    return null;
+                        Entity entity2 = new Entity();
+                        ArrayList<KeyValue> keyValues = cb.get(0);
+                        String parentid = "00000000";
+
+                        for (KeyValue keyValue : keyValues) {
+                            if (Bytes.wrap(keyValue.qualifier()).toStringUtf8().equals("Parentid")){
+                                parentid = Bytes.wrap(keyValue.value()).toStringUtf8();
+                            };
+
+                        }
+                        entity2.setParentId(parentid);
+                        entity2.setEntity(value.getEntity());
+                        resultFuture.complete(Collections.singleton(entity2));
+
+                    }
                     return null;
                 });
 
@@ -104,11 +124,18 @@ public class AsyncHbaseCache {
 //                            return null;
 //                        });
             }
+
+            @Override
+            public void close() throws Exception {
+                super.close();
+                System.out.println(" close the hbase client");
+                hBaseClient.shutdown();
+            }
         };
         // 异步流是否用方法,需要等待无序还是有序？
         // 有序代表watermark水印保证数据的有序性。（根据应用场景来判断下游需要有序，还是无序的数据作为依据）
         SingleOutputStreamOperator<Entity> map = AsyncDataStream.
-                orderedWait(sourceStream, richAsyncFunction, 1, TimeUnit.SECONDS,3);
+                orderedWait(sourceStream, richAsyncFunction, 1000, TimeUnit.SECONDS,3000);
         map.printToErr();
         FocusUtil.execute(AsyncHbaseCache.class.getName());
     }
