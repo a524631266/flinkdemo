@@ -3,6 +3,8 @@ package flinkbase.watermarker;
 import flinkbase.model.Person;
 import flinkbase.utils.EnvUtil;
 import flinkbase.utils.SourceUtil;
+import org.apache.flink.api.common.eventtime.WatermarkStrategy;
+import org.apache.flink.core.execution.JobClient;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.TimerService;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
@@ -14,6 +16,9 @@ import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.util.Collector;
 
 import java.sql.Timestamp;
+import java.time.Duration;
+import java.time.temporal.TemporalUnit;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 在source端，生成数据，并发送数据
@@ -137,10 +142,12 @@ public class SourceWaterMarker {
                 .returns(Person.class);
 
         source1
+//                .assignTimestampsAndWatermarks(
+//                WatermarkStrategy.forBoundedOutOfOrderness(Duration.of(1 ,SECONDS)))
                 .process(new ProcessFunction<Person, Person>() {
                     @Override
                     public void processElement(Person value, Context ctx, Collector<Person> out) throws Exception {
-                        if("王五".equals(value.getName())){
+                        if("zhangsan".equals(value.getName())){
                             System.out.println("source:  "+ ctx.timestamp());
                             System.out.println(value);
                             out.collect(value);
@@ -153,7 +160,12 @@ public class SourceWaterMarker {
                 .sum("age").printToErr()
         ;
 
-        env.execute("water marker1");
+//        env.execute("water marker1");
+        JobClient jobClient = env.executeAsync();
+        System.out.println("jobid: " + jobClient.getJobID());
+//        TimeUnit.SECONDS.sleep(10);
+//        jobClient.cancel();
+
 
     }
 }
