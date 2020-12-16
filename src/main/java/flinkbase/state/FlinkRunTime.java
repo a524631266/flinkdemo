@@ -53,12 +53,13 @@ public class FlinkRunTime {
                 System.out.println(value);
                 // 每个并发实例的runtime是不一样的！！！
                 mapState.put(value.getAddress().getAddress(),value.getName() );
-                System.out.println(getRuntimeContext());
+                System.out.println("TaskName:" + getRuntimeContext().getTaskName());
+
                 System.out.println(Iterables.size(getRuntimeContext().getMapState(stateDesc).values()));
                 System.out.println(Iterables.size(mapState.values()));
                 return value.getName();
             }
-        }).setParallelism(1);
+        }).setParallelism(10);
 
         map.keyBy(value -> value).filter(new RichFilterFunction<String>() {
             MapState<String, String> mapState;
