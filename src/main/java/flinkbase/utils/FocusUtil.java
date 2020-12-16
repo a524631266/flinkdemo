@@ -50,6 +50,10 @@ public class FocusUtil {
     }
 
     public static void start(StreamExecutionEnvironment env, String simple, int durationS) {
+        innerStart(env, durationS);
+    }
+
+    private static void innerStart(StreamExecutionEnvironment env, int durationS) {
         try {
             JobClient jobClient = env.executeAsync();
             TimeUnit.SECONDS.sleep(durationS);
@@ -57,6 +61,9 @@ public class FocusUtil {
         } catch ( Exception e ) {
             e.printStackTrace();
         }
+    }
 
+    public static void startFoucs(String simple, int durationS) {
+        innerStart(env, durationS);
     }
 }
