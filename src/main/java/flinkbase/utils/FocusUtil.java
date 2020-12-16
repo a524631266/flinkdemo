@@ -11,6 +11,10 @@ import java.util.concurrent.TimeUnit;
 public class FocusUtil {
     private static StreamExecutionEnvironment env;
 
+    public static StreamExecutionEnvironment getEnv() {
+        return env;
+    }
+
     public static<T> SingleOutputStreamOperator<T> generateEnableSourceStream(Class<T> tClass, long generateRateMilSecond){
         env = EnvUtil.getLocalWebEnv();
         // 添加source

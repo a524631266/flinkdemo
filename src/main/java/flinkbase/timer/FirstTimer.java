@@ -6,6 +6,7 @@ import flinkbase.utils.FocusUtil;
 import org.apache.flink.api.common.state.ValueState;
 import org.apache.flink.api.common.state.ValueStateDescriptor;
 import org.apache.flink.configuration.Configuration;
+import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
 import org.apache.flink.util.Collector;
@@ -40,7 +41,8 @@ public class FirstTimer {
     public static void main(String[] args) {
         SingleOutputStreamOperator<ActiveModel> sourceStream =
                 FocusUtil.generateEnableSourceStream(ActiveModel.class, 1_000);
-
+        // 给 mailbox中添加一个event事件
+        FocusUtil.getEnv().enableCheckpointing(5_000, CheckpointingMode.EXACTLY_ONCE);
         sourceStream.keyBy(a -> a.getUserId())
                 .process(new KeyedProcessFunction<String, ActiveModel, Integer>() {
                     private transient ValueState<Integer> state;
@@ -76,7 +78,7 @@ public class FirstTimer {
                         super.close();
                         state = null;
                     }
-                });
+                }).setParallelism(4);
         FocusUtil.startFoucs("firstTimer", 1_000_000_00);
     }
 }
